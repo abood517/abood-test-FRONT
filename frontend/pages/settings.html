@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@300;400;500;600&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    .settings-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+    .settings-sidebar { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 4px; height: fit-content; }
+    .settings-nav-item { padding: 11px 14px; border-radius: 10px; font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+    .settings-nav-item:hover, .settings-nav-item.active { background: rgba(177, 77, 255,0.08); color: var(--neon); }
+
+    .settings-main { display: flex; flex-direction: column; gap: 18px; }
+    .settings-section { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+    .settings-section h2 {
+      font-family: var(--font-head);
+      font-size: 14px;
+      color: var(--text);
+      letter-spacing: 2px;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    html[dir="rtl"] .settings-section h2 { letter-spacing: 0; }
+
+    .lang-toggle-row {
+      display: flex;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+    .lang-btn-tab {
+      padding: 12px 28px;
+      font-family: var(--font-head);
+      font-size: 12px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+    }
+    .lang-btn-tab.active { background: var(--neon); color: #000; }
+
+    .lang-preview { margin-top: 16px; padding: 14px; background: rgba(20, 20, 29,0.4); border: 1px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text2); }
+    .lang-preview b { color: var(--neon); }
+
+    .profile-display { display: flex; align-items: center; gap: 24px; }
+    .big-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--neon2), var(--neon3));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head);
+      font-size: 30px;
+      color: #000;
+      font-weight: 700;
+      box-shadow: 0 0 25px rgba(177, 77, 255,0.35);
+    }
+    .profile-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
+    .ps-item { background: rgba(20, 20, 29,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+    .ps-val { font-family: var(--font-head); font-size: 18px; color: var(--neon); margin-bottom: 2px; }
+    .ps-key { font-size: 10px; color: var(--text2); letter-spacing: 1px; }
+
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(177, 77, 255,0.07); }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 13px; color: var(--text); }
+    .toggle-desc { font-size: 11px; color: var(--text2); margin-top: 3px; }
+    .switch { position: relative; width: 44px; height: 24px; background: rgba(20, 20, 29,0.6); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--text2); border-radius: 50%; transition: all 0.2s; }
+    .switch.on { background: rgba(177, 77, 255,0.3); border-color: var(--neon); }
+    .switch.on::after { left: 22px; background: var(--neon); box-shadow: 0 0 8px var(--neon); }
+
+    @media (max-width: 900px) {
+      .settings-layout { grid-template-columns: 1fr; }
+      .profile-display { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+<div id="page">
+  <div class="settings-layout">
+    <aside class="settings-sidebar">
+      <div class="settings-nav-item active" data-section="profile">◯ <span data-i18n="set.profile">Profile</span></div>
+      <div class="settings-nav-item" data-section="language">⌘ <span data-i18n="set.language">Language</span></div>
+      <div class="settings-nav-item" data-section="gameplay">▶ <span data-i18n="set.gameplay">Gameplay</span></div>
+    </aside>
+
+    <div class="settings-main">
+      <section class="settings-section" id="sec-profile">
+        <h2 data-i18n="set.profile">PROFILE</h2>
+        <div class="profile-display">
+          <div class="big-avatar" id="bigAvatar">A</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:var(--font-head);font-size:18px;color:var(--text);margin-bottom:4px;" id="settingsName">Player</div>
+            <div style="font-size:12px;color:var(--text2);font-family:var(--font-mono);" id="settingsMeta">#AT-0000 · email@example.com</div>
+            <div class="profile-stats-grid">
+              <div class="ps-item"><div class="ps-val" id="psLevel">1</div><div class="ps-key" data-i18n="hub.level">LEVEL</div></div>
+              <div class="ps-item"><div class="ps-val" id="psXp">0</div><div class="ps-key" data-i18n="hub.xp">XP</div></div>
+              <div class="ps-item"><div class="ps-val" id="psCompleted">0</div><div class="ps-key">CHALLENGES</div></div>
+              <div class="ps-item"><div class="ps-val" id="psCoins">0</div><div class="ps-key" data-i18n="hub.coins">COINS</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section" id="sec-language">
+        <h2 data-i18n="set.language">LANGUAGE &amp; REGION</h2>
+        <div class="lang-toggle-row">
+          <button class="lang-btn-tab" id="langEnBtn">ENGLISH</button>
+          <button class="lang-btn-tab" id="langArBtn">عربي</button>
+        </div>
+        <div class="lang-preview">
+          <span data-i18n="set.langCurrent">Interface language:</span>
+          <b id="langCurrent">English</b>
+        </div>
+      </section>
+
+      <section class="settings-section" id="sec-gameplay">
+        <h2 data-i18n="set.gameplay">GAMEPLAY</h2>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Animations</div>
+            <div class="toggle-desc">Enable XP and badge animations</div>
+          </div>
+          <div class="switch on" id="sw-animations"></div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Sound effects</div>
+            <div class="toggle-desc">Play sound on correct/wrong answers</div>
+          </div>
+          <div class="switch" id="sw-sound"></div>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Auto-show hints</div>
+            <div class="toggle-desc">Reveal hint automatically after 60s</div>
+          </div>
+          <div class="switch" id="sw-autohint"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+<script src="../js/app.js"></script>
+<script>
+  Auth.requireAuth();
+  Shell.mount({ active: 'settings', title: { text: 'SETTINGS', i18n: 'shell.settings' } });
+
+  async function loadSettings() {
+    try {
+      const user = await API.getMe();
+      Auth.setUser(user);
+      document.getElementById('bigAvatar').textContent = (user.username || 'A').charAt(0).toUpperCase();
+      document.getElementById('settingsName').textContent = user.username;
+      document.getElementById('settingsMeta').textContent = `#AT-${String(user.id).padStart(4, '0')} · ${user.email}`;
+      document.getElementById('psLevel').textContent = user.level;
+      document.getElementById('psXp').textContent = user.xp;
+      document.getElementById('psCoins').textContent = user.coins;
+
+      const analytics = await API.getAnalytics();
+      document.getElementById('psCompleted').textContent = analytics.totals.completed;
+    } catch (e) { console.error(e); }
+  }
+
+  // Language buttons reflect current state
+  function syncLangButtons() {
+    const lang = I18n.getLang();
+    document.getElementById('langEnBtn').classList.toggle('active', lang === 'en');
+    document.getElementById('langArBtn').classList.toggle('active', lang === 'ar');
+    document.getElementById('langCurrent').textContent = lang === 'ar' ? 'العربية' : 'English';
+  }
+  document.getElementById('langEnBtn').addEventListener('click', () => { I18n.setLang('en'); syncLangButtons(); });
+  document.getElementById('langArBtn').addEventListener('click', () => { I18n.setLang('ar'); syncLangButtons(); });
+  syncLangButtons();
+
+  // Gameplay switches — persist to localStorage
+  ['animations', 'sound', 'autohint'].forEach(key => {
+    const sw = document.getElementById('sw-' + key);
+    const saved = localStorage.getItem('abood_pref_' + key);
+    if (saved === 'on') sw.classList.add('on');
+    if (saved === 'off') sw.classList.remove('on');
+    sw.addEventListener('click', () => {
+      sw.classList.toggle('on');
+      localStorage.setItem('abood_pref_' + key, sw.classList.contains('on') ? 'on' : 'off');
+    });
+  });
+
+  // Settings nav scrolls to section
+  document.querySelectorAll('.settings-nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      const target = document.getElementById('sec-' + item.dataset.section);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  loadSettings();
+</script>
+</body>
+</html>

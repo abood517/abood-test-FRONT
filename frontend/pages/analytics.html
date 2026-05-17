@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@300;400;500;600&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .metric-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; }
+    .metric-val { font-family: var(--font-head); font-size: 30px; color: var(--neon); margin-bottom: 4px; }
+    .metric-label { font-size: 11px; color: var(--text2); letter-spacing: 2px; }
+
+    .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; }
+    .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+
+    .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 200px; padding-bottom: 4px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+    .bar {
+      width: 100%;
+      border-radius: 6px 6px 0 0;
+      background: linear-gradient(180deg, var(--neon), var(--neon2));
+      opacity: 0.85;
+      transition: height 1.5s cubic-bezier(0.2, 1, 0.3, 1);
+      min-height: 4px;
+      position: relative;
+    }
+    .bar:hover { opacity: 1; box-shadow: 0 0 12px var(--neon); }
+    .bar-value { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 10px; color: var(--text2); white-space: nowrap; }
+    .bar-day { font-size: 11px; color: var(--text2); font-family: var(--font-mono); }
+
+    .donut-wrap { display: flex; align-items: center; justify-content: center; height: 180px; position: relative; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); }
+    .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+
+    .recent-list { display: flex; flex-direction: column; gap: 8px; }
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(177, 77, 255, 0.04);
+      border-radius: 8px;
+      border-left: 2px solid var(--neon);
+    }
+    html[dir="rtl"] .recent-item { border-left: none; border-right: 2px solid var(--neon); }
+    .recent-icon { color: var(--success); font-size: 16px; }
+    .recent-title { flex: 1; font-size: 13px; color: var(--text); }
+    .recent-xp { font-family: var(--font-mono); font-size: 12px; color: var(--neon); }
+    .recent-empty { padding: 24px; text-align: center; color: var(--text2); font-size: 13px; }
+
+    @media (max-width: 900px) {
+      .metrics-grid { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="page">
+  <div class="metrics-grid">
+    <div class="metric-card"><div class="metric-val" id="metricXp">0</div><div class="metric-label" data-i18n="analytics.totalXp">TOTAL XP EARNED</div></div>
+    <div class="metric-card"><div class="metric-val" id="metricCompleted">0</div><div class="metric-label" data-i18n="analytics.completed">CHALLENGES COMPLETED</div></div>
+    <div class="metric-card"><div class="metric-val" id="metricAccuracy">0%</div><div class="metric-label" data-i18n="analytics.accuracy">ACCURACY RATE</div></div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="panel-title" data-i18n="analytics.weekly">WEEKLY XP PROGRESS</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="panel-title" data-i18n="analytics.byTrack">BY TRACK</div>
+      <div class="donut-wrap">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(177, 77, 255,0.08)" stroke-width="16"/>
+          <circle id="donutFe" cx="80" cy="80" r="60" fill="none" stroke="#c080ff" stroke-width="16" stroke-dasharray="0 377" transform="rotate(-90 80 80)" style="transition:stroke-dasharray 1.5s cubic-bezier(0.2,1,0.3,1)"/>
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="var(--neon)" font-family="Orbitron,sans-serif" font-size="22" font-weight="700" id="donutPercent">0%</text>
+        </svg>
+      </div>
+      <div class="donut-legend" id="donutLegend"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title" data-i18n="analytics.recent">RECENT ACTIVITY</div>
+    <div class="recent-list" id="recentList">
+      <div class="recent-empty" data-i18n="dashboard.noActivity">No activity yet — solve your first challenge!</div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+<script src="../js/app.js"></script>
+<script>
+  Auth.requireAuth();
+  Shell.mount({ active: 'analytics', title: { text: 'ANALYTICS', i18n: 'shell.analytics' } });
+
+  function animateNumber(el, target, suffix = '', dur = 1200) {
+    const start = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+      el.textContent = Math.round(eased * target) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  async function loadAnalytics() {
+    try {
+      const data = await API.getAnalytics();
+
+      animateNumber(document.getElementById('metricXp'), data.user.xp);
+      animateNumber(document.getElementById('metricCompleted'), data.totals.completed);
+      animateNumber(document.getElementById('metricAccuracy'), data.totals.accuracy, '%');
+
+      // Bars
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const maxXp = Math.max(...data.weekly, 100);
+      const bars = data.weekly.map((xp, i) => {
+        const pct = (xp / maxXp) * 100;
+        return `
+          <div class="bar-wrap">
+            <div class="bar" style="height:0%" data-h="${pct}%">
+              <div class="bar-value">${xp}</div>
+            </div>
+            <div class="bar-day">${days[i]}</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('barChart').innerHTML = bars;
+      setTimeout(() => {
+        document.querySelectorAll('.bar').forEach((b, i) => {
+          setTimeout(() => { b.style.height = b.dataset.h; }, i * 80);
+        });
+      }, 200);
+
+      // Donut - frontend completion
+      const feCompleted = data.perSection.frontend || 0;
+      const feTotal = 100; // 100 frontend challenges
+      const fePct = Math.min(Math.round((feCompleted / feTotal) * 100), 100);
+      document.getElementById('donutPercent').textContent = fePct + '%';
+      const circumference = 2 * Math.PI * 60;
+      setTimeout(() => {
+        const dashLen = (fePct / 100) * circumference;
+        document.getElementById('donutFe').setAttribute('stroke-dasharray', `${dashLen} ${circumference}`);
+      }, 300);
+
+      document.getElementById('donutLegend').innerHTML = `
+        <div class="legend-item"><span class="legend-color" style="background:#c080ff"></span>Frontend · ${feCompleted} / ${feTotal}</div>
+        <div class="legend-item"><span class="legend-color" style="background:rgba(177, 77, 255,0.4)"></span>Other tracks · coming soon</div>
+      `;
+
+      // Recent activity
+      const recent = document.getElementById('recentList');
+      if (data.recent && data.recent.length > 0) {
+        recent.innerHTML = data.recent.map(r => `
+          <div class="recent-item">
+            <span class="recent-icon">✓</span>
+            <span class="recent-title">${r.title}</span>
+            <span class="recent-xp">+${r.xp_reward} XP</span>
+          </div>
+        `).join('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  loadAnalytics();
+</script>
+</body>
+</html>

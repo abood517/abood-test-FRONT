@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABOOD Test - Cinematic Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon: #b14dff;
+    --neon2: #8a2be2;
+    --neon3: #ff4d8e;
+    --bg: #08080d;
+    --bg2: #14141d;
+    --panel: rgba(20,20,29,0.92);
+    --panel2: rgba(177,77,255,0.08);
+    --border: rgba(177,77,255,0.18);
+    --text: #ffffff;
+    --text2: #8b8ba0;
+    --success: #4dffaa;
+    --warn: #ffaa4d;
+    --danger: #ff4466;
+    --medical: #b14dff;
+    --font-head: 'Orbitron', monospace;
+    --font-body: 'Exo 2', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:var(--font-body);}
+
+  #stage{position:relative;width:1280px;height:720px;background:var(--bg);overflow:hidden;margin:auto;transform-origin:top left;}
+  canvas#stars{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+  .scene{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .6s;}
+  .scene.active{opacity:1;pointer-events:all;}
+
+  #cursor{position:absolute;z-index:9999;pointer-events:none;width:20px;height:20px;border:2px solid var(--neon);border-radius:50%;box-shadow:0 0 8px var(--neon),0 0 20px rgba(177,77,255,.3);transition:transform .08s;transform:translate(-50%,-50%);}
+  #cursor::after{content:'';position:absolute;top:50%;left:50%;width:4px;height:4px;background:var(--neon);border-radius:50%;transform:translate(-50%,-50%);}
+  #cursor.click{transform:translate(-50%,-50%) scale(1.6);border-color:#fff;}
+  .ripple{position:absolute;z-index:9998;pointer-events:none;width:30px;height:30px;border:2px solid var(--neon);border-radius:50%;transform:translate(-50%,-50%) scale(0);opacity:.8;animation:ripple .5s forwards;}
+  @keyframes ripple{to{transform:translate(-50%,-50%) scale(2.5);opacity:0;}}
+
+  #progress-bar{position:fixed;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--neon),var(--neon3));z-index:10000;transition:width .4s linear;box-shadow:0 0 8px var(--neon);}
+  #scene-label{position:fixed;top:18px;left:50%;transform:translateX(-50%);font-family:var(--font-head);font-size:11px;letter-spacing:3px;color:var(--text2);z-index:10000;opacity:0;transition:opacity .4s;background:rgba(5,10,20,.7);padding:5px 18px;border-radius:20px;border:1px solid var(--border);}
+  #scene-label.show{opacity:1;}
+  #transition{position:fixed;inset:0;z-index:9990;background:radial-gradient(circle at center,rgba(177,77,255,.15),var(--bg));pointer-events:none;opacity:0;transition:opacity .35s;}
+  #transition.flash{opacity:1;}
+
+  .spinner{width:48px;height:48px;border:3px solid rgba(177,77,255,.15);border-top:3px solid var(--neon);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  #s0{background:var(--bg);flex-direction:column;gap:24px;}
+  .logo-wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;}
+  .logo-hex{width:120px;height:120px;position:relative;animation:logoPulse 2.5s ease-in-out infinite;}
+  @keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 20px var(--neon));}50%{filter:drop-shadow(0 0 45px var(--neon)) drop-shadow(0 0 80px rgba(177,77,255,.4));}}
+  .logo-title{font-family:var(--font-head);font-size:52px;font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,#fff 0%,var(--neon) 50%,var(--neon3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:fadeUp 1.2s .4s both;}
+  .logo-sub{font-family:var(--font-body);font-size:15px;letter-spacing:8px;color:var(--text2);text-transform:uppercase;animation:fadeUp 1.2s .7s both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  .particle-field{position:absolute;inset:-100px;pointer-events:none;}
+
+  #s1{background:linear-gradient(135deg,#050a14 0%,#071828 100%);}
+  .auth-card{width:420px;background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:44px 40px;box-shadow:0 0 60px rgba(138, 43, 226,.12),0 30px 80px rgba(0,0,0,.5);backdrop-filter:blur(20px);}
+  .auth-logo{font-family:var(--font-head);font-size:18px;color:var(--neon);letter-spacing:3px;margin-bottom:28px;text-align:center;}
+  .auth-tabs{display:flex;gap:0;margin-bottom:28px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+  .auth-tab{flex:1;padding:10px;text-align:center;font-family:var(--font-head);font-size:11px;letter-spacing:2px;color:var(--text2);cursor:pointer;transition:all .3s;background:transparent;}
+  .auth-tab.active{background:var(--neon);color:#000;}
+  .field-group{margin-bottom:18px;}
+  .field-label{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:7px;font-family:var(--font-head);}
+  .field-input{width:100%;background:rgba(20, 20, 29,.6);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .3s,box-shadow .3s;}
+  .field-input.focused{border-color:var(--neon);box-shadow:0 0 15px rgba(177,77,255,.2);}
+  .field-input.filled{border-color:rgba(177,77,255,.4);}
+  .btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--neon2),var(--neon));border:none;border-radius:10px;color:#000;font-family:var(--font-head);font-size:12px;letter-spacing:3px;cursor:pointer;margin-top:8px;box-shadow:0 0 20px rgba(177,77,255,.3);transition:transform .2s;}
+  .auth-spinner{display:flex;align-items:center;justify-content:center;margin-top:20px;gap:12px;color:var(--text2);font-size:13px;}
+
+  #s2{align-items:stretch;justify-content:stretch;padding:0;}
+  .dashboard{display:flex;width:100%;height:100%;position:relative;}
+  .sidebar{width:220px;background:rgba(5,12,28,.95);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;gap:4px;flex-shrink:0;}
+  .sb-logo{font-family:var(--font-head);font-size:13px;color:var(--neon);letter-spacing:2px;padding:0 20px 20px;border-bottom:1px solid var(--border);}
+  .sb-user{padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .sb-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--neon2),var(--neon3));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:14px;color:#000;font-weight:700;}
+  .sb-info{flex:1;}
+  .sb-name{font-size:12px;color:var(--text);font-weight:600;}
+  .sb-id{font-size:10px;color:var(--text2);font-family:var(--font-mono);}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s;border-left:2px solid transparent;}
+  .nav-item:hover,.nav-item.active{background:rgba(177,77,255,.08);color:var(--neon);border-left-color:var(--neon);}
+  .nav-icon{font-size:16px;width:20px;text-align:center;}
+  .main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;background:rgba(5,12,28,.7);}
+  .topbar-title{font-family:var(--font-head);font-size:14px;color:var(--text);letter-spacing:2px;flex:1;}
+  .topbar-icon{position:relative;width:36px;height:36px;border-radius:10px;background:rgba(177,77,255,.08);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px;}
+  .notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--warn);border-radius:50%;border:1px solid var(--bg2);}
+  .content-area{flex:1;padding:20px 24px;overflow:hidden;display:flex;flex-direction:column;gap:16px;}
+  .profile-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:20px;}
+  .profile-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--neon2),var(--neon3));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:22px;color:#000;font-weight:700;flex-shrink:0;box-shadow:0 0 20px rgba(177,77,255,.3);}
+  .profile-info{flex:1;}
+  .profile-name{font-family:var(--font-head);font-size:16px;color:var(--text);margin-bottom:3px;}
+  .profile-meta{font-size:11px;color:var(--text2);font-family:var(--font-mono);margin-bottom:10px;}
+  .xp-bar-wrap{background:rgba(20, 20, 29,.6);border-radius:20px;height:8px;overflow:hidden;}
+  .xp-bar{height:100%;background:linear-gradient(90deg,var(--neon2),var(--neon),var(--neon3));border-radius:20px;width:68%;box-shadow:0 0 10px var(--neon);}
+  .xp-label{font-size:10px;color:var(--text2);margin-top:4px;font-family:var(--font-mono);}
+  .level-badge{background:linear-gradient(135deg,#0050a0,var(--neon2));border-radius:12px;padding:6px 14px;font-family:var(--font-head);font-size:11px;color:#fff;letter-spacing:2px;}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .stat-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;cursor:pointer;transition:all .25s;}
+  .stat-card:hover{border-color:var(--neon);box-shadow:0 0 20px rgba(177,77,255,.15);}
+  .stat-val{font-family:var(--font-head);font-size:22px;color:var(--neon);margin-bottom:3px;}
+  .stat-key{font-size:10px;color:var(--text2);letter-spacing:1px;}
+  .notif-popup{position:absolute;top:56px;right:80px;width:300px;background:rgba(6,14,32,.97);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:100;animation:popIn .25s ease;}
+  @keyframes popIn{from{opacity:0;transform:translateY(-10px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .notif-item{padding:10px;border-radius:8px;margin-bottom:6px;background:rgba(177,77,255,.05);font-size:12px;color:var(--text);}
+  .notif-title{font-family:var(--font-head);font-size:10px;color:var(--neon);letter-spacing:2px;margin-bottom:10px;}
+  .ai-sidebar{width:280px;border-left:1px solid var(--border);background:rgba(4,10,24,.97);display:flex;flex-direction:column;padding:16px;gap:12px;}
+  .ai-header{font-family:var(--font-head);font-size:12px;color:var(--neon);letter-spacing:2px;display:flex;align-items:center;gap:8px;}
+  .ai-dot{width:8px;height:8px;background:var(--neon3);border-radius:50%;animation:blink 1.5s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+  .ai-messages{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:8px;}
+  .ai-msg{font-size:12px;padding:10px 12px;border-radius:10px;line-height:1.5;}
+  .ai-msg.bot{background:rgba(177,77,255,.08);color:var(--text);border:1px solid rgba(177,77,255,.1);}
+  .ai-msg.user-msg{background:rgba(138, 43, 226,.2);color:var(--text);text-align:right;margin-left:20px;}
+  .ai-input-wrap{display:flex;gap:8px;}
+  .ai-input{flex:1;background:rgba(20, 20, 29,.6);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;font-family:var(--font-body);}
+  .ai-send{background:var(--neon2);border:none;border-radius:8px;padding:8px 12px;color:#fff;cursor:pointer;font-size:14px;}
+
+  #s3{padding:0;}
+  .cats-wrap{width:100%;height:100%;display:flex;flex-direction:column;background:var(--bg2);}
+  .cats-header{padding:28px 40px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;}
+  .cats-title{font-family:var(--font-head);font-size:20px;color:var(--text);letter-spacing:3px;flex:1;}
+  .cats-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:0;}
+  .cat-card{position:relative;overflow:hidden;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 32px;}
+  .cat-card::before{content:'';position:absolute;inset:0;transition:opacity .3s;opacity:.7;}
+  .cat-fe::before{background:linear-gradient(135deg,#1a0533,#2d1060,#0d3b8a);}
+  .cat-fe{border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .cat-be::before{background:linear-gradient(135deg,#050a14,#0a1428,#0d2040);}
+  .cat-be{border-bottom:1px solid var(--border);}
+  .cat-sec::before{background:linear-gradient(135deg,#001a00,#003300,#0a1a00);}
+  .cat-sec{border-right:1px solid var(--border);}
+  .cat-ehr::before{background:linear-gradient(135deg,#001535,#002a60,#003b8a);}
+  .cat-card:hover::before{opacity:1;}
+  .cat-glyph{font-size:52px;position:absolute;top:24px;left:28px;opacity:.35;z-index:1;}
+  .cat-title{font-family:var(--font-head);font-size:18px;color:#fff;letter-spacing:2px;margin-bottom:6px;position:relative;z-index:2;}
+  .cat-desc{font-size:12px;color:rgba(255,255,255,.5);position:relative;z-index:2;margin-bottom:12px;}
+  .cat-tag{display:inline-block;padding:4px 10px;border-radius:20px;font-size:10px;letter-spacing:2px;font-family:var(--font-head);position:relative;z-index:2;}
+  .cat-fe .cat-tag{background:rgba(160,80,255,.2);color:#c080ff;border:1px solid rgba(160,80,255,.3);}
+  .cat-be .cat-tag{background:rgba(177,77,255,.1);color:var(--neon);border:1px solid var(--border);}
+  .cat-sec .cat-tag{background:rgba(0,255,80,.1);color:#00ff50;border:1px solid rgba(0,255,80,.2);}
+  .cat-ehr .cat-tag{background:rgba(33,150,243,.15);color:#64b5f6;border:1px solid rgba(33,150,243,.2);}
+  .cat-card.hovered{transform:scale(1.02);z-index:10;box-shadow:0 0 40px rgba(177,77,255,.2);}
+  .glitch-line{position:absolute;height:1px;width:80%;left:10%;background:linear-gradient(90deg,transparent,var(--neon),transparent);opacity:0;animation:glitch 3s infinite;}
+  @keyframes glitch{0%,90%,100%{opacity:0;}95%{opacity:.4;}}
+
+  #s4{padding:0;background:linear-gradient(135deg,#01082a,#000d1e);}
+  .game-wrap{width:100%;height:100%;display:flex;flex-direction:column;}
+  .game-topbar{height:52px;background:rgba(5,12,28,.9);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:16px;}
+  .game-title{font-family:var(--font-head);font-size:13px;color:var(--neon);letter-spacing:3px;flex:1;}
+  .game-xp-mini{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:12px;color:var(--text2);}
+  .game-body{flex:1;display:flex;gap:24px;padding:24px;}
+  .patient-card{width:260px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;flex-shrink:0;}
+  .pc-label{font-family:var(--font-head);font-size:10px;color:var(--medical);letter-spacing:3px;margin-bottom:4px;}
+  .pc-name{font-size:18px;font-weight:600;color:var(--text);}
+  .pc-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:8px 0;border-bottom:1px solid rgba(177,77,255,.07);}
+  .pc-symptom{padding:8px 10px;background:rgba(33,150,243,.08);border:1px solid rgba(33,150,243,.15);border-radius:8px;font-size:12px;color:#64b5f6;margin-top:4px;}
+  .game-right{flex:1;display:flex;flex-direction:column;gap:16px;}
+  .question-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;}
+  .q-label{font-family:var(--font-head);font-size:10px;color:var(--text2);letter-spacing:3px;margin-bottom:12px;}
+  .q-text{font-size:16px;color:var(--text);line-height:1.5;margin-bottom:20px;}
+  .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .answer-btn{padding:14px 18px;background:rgba(20, 20, 29,.6);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;transition:all .25s;font-family:var(--font-body);text-align:left;}
+  .answer-btn.correct{background:rgba(0,255,160,.1);border-color:var(--success);color:var(--success);box-shadow:0 0 20px rgba(0,255,160,.2);}
+  .xp-gain{background:var(--panel);border:1px solid rgba(0,255,160,.2);border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;}
+  .xp-icon{font-size:32px;}
+  .xp-info{flex:1;}
+  .xp-title{font-family:var(--font-head);font-size:14px;color:var(--success);letter-spacing:2px;margin-bottom:6px;}
+  .xp-bar-full{background:rgba(20, 20, 29,.6);border-radius:20px;height:12px;overflow:hidden;position:relative;}
+  .xp-fill{height:100%;background:linear-gradient(90deg,#00a080,var(--success));border-radius:20px;transition:width 1.5s cubic-bezier(.2,1,.3,1);box-shadow:0 0 12px var(--success);}
+  .levelup-badge{background:linear-gradient(135deg,#0050a0,var(--neon));border-radius:20px;padding:8px 20px;font-family:var(--font-head);font-size:12px;color:#fff;letter-spacing:3px;animation:pulseBadge 1s ease-in-out infinite;box-shadow:0 0 20px rgba(177,77,255,.4);}
+  @keyframes pulseBadge{0%,100%{box-shadow:0 0 20px rgba(177,77,255,.4);}50%{box-shadow:0 0 40px rgba(177,77,255,.7);}}
+
+  #s5{padding:0;background:var(--bg2);}
+  .social-wrap{width:100%;height:100%;display:flex;}
+  .social-list{width:260px;border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:12px;}
+  .social-header{font-family:var(--font-head);font-size:12px;color:var(--neon);letter-spacing:3px;margin-bottom:4px;}
+  .user-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;transition:all .2s;}
+  .user-row.selected{background:rgba(177,77,255,.08);border:1px solid var(--border);}
+  .user-ava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:12px;font-weight:700;color:#000;flex-shrink:0;}
+  .user-online{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);flex-shrink:0;}
+  .add-friend-btn{padding:6px 12px;border-radius:8px;border:1px solid var(--neon);background:transparent;color:var(--neon);font-size:11px;cursor:pointer;font-family:var(--font-head);letter-spacing:1px;transition:all .2s;}
+  .add-friend-btn.added{background:var(--neon);color:#000;}
+  .chat-area{flex:1;display:flex;flex-direction:column;padding:20px;}
+  .chat-header{font-family:var(--font-head);font-size:12px;color:var(--text);letter-spacing:2px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .chat-messages{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:8px;justify-content:flex-end;}
+  .chat-msg{display:flex;gap:8px;align-items:flex-end;}
+  .chat-msg.mine{flex-direction:row-reverse;}
+  .chat-ava{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000;}
+  .chat-bubble{max-width:65%;padding:9px 13px;border-radius:14px;font-size:12px;line-height:1.5;background:rgba(177,77,255,.1);color:var(--text);border:1px solid rgba(177,77,255,.15);}
+  .chat-msg.mine .chat-bubble{background:rgba(138, 43, 226,.25);border-color:rgba(138, 43, 226,.3);}
+  .typing-indicator{display:flex;gap:4px;padding:10px 14px;background:rgba(177,77,255,.08);border-radius:14px;width:fit-content;}
+  .typing-dot{width:6px;height:6px;background:var(--neon);border-radius:50%;animation:typingBounce .8s ease-in-out infinite;}
+  .typing-dot:nth-child(2){animation-delay:.15s;}
+  .typing-dot:nth-child(3){animation-delay:.3s;}
+  @keyframes typingBounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-6px);}}
+  .chat-input-row{display:flex;gap:10px;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;}
+  .chat-input{flex:1;background:rgba(20, 20, 29,.6);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:var(--font-body);font-size:13px;}
+  .chat-send{background:var(--neon2);border:none;border-radius:10px;padding:10px 16px;color:#fff;cursor:pointer;}
+
+  #s6{padding:0;background:var(--bg);}
+  .ai-full{width:100%;height:100%;display:flex;}
+  .ai-main-chat{flex:1;display:flex;flex-direction:column;padding:24px;}
+  .ai-title-bar{font-family:var(--font-head);font-size:16px;color:var(--neon);letter-spacing:3px;display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+  .ai-chat-area{flex:1;display:flex;flex-direction:column;gap:12px;justify-content:flex-end;overflow:hidden;}
+  .ai-chat-msg{padding:14px 18px;border-radius:14px;font-size:13px;line-height:1.6;max-width:75%;}
+  .ai-chat-msg.user-msg{background:rgba(138, 43, 226,.2);color:var(--text);margin-left:auto;border:1px solid rgba(138, 43, 226,.25);font-family:var(--font-body);}
+  .ai-chat-msg.bot{background:rgba(177,77,255,.06);color:var(--text);border:1px solid rgba(177,77,255,.1);}
+  .ai-typing{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:12px;font-family:var(--font-mono);}
+  .ai-input-area{display:flex;gap:10px;margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
+  .ai-main-input{flex:1;background:rgba(20, 20, 29,.6);border:1px solid var(--border);border-radius:12px;padding:14px 18px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;}
+  .ai-main-input.typing-glow{border-color:var(--neon);box-shadow:0 0 15px rgba(177,77,255,.2);}
+  .ai-main-send{background:linear-gradient(135deg,var(--neon2),var(--neon));border:none;border-radius:12px;padding:14px 20px;color:#000;cursor:pointer;font-size:18px;font-weight:700;}
+
+  #s7{padding:0;background:var(--bg2);}
+  .analytics-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:24px;gap:16px;}
+  .analytics-header{font-family:var(--font-head);font-size:18px;color:var(--text);letter-spacing:3px;}
+  .analytics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;flex-shrink:0;}
+  .metric-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .metric-val{font-family:var(--font-head);font-size:28px;color:var(--neon);margin-bottom:4px;}
+  .metric-label{font-size:11px;color:var(--text2);letter-spacing:2px;}
+  .charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;flex:1;}
+  .chart-card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px 20px;overflow:hidden;position:relative;}
+  .chart-title{font-family:var(--font-head);font-size:11px;color:var(--text2);letter-spacing:2px;margin-bottom:14px;}
+  .bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;padding-bottom:4px;}
+  .bar{border-radius:4px 4px 0 0;background:linear-gradient(180deg,var(--neon),var(--neon2));opacity:.85;transition:height 1.5s cubic-bezier(.2,1,.3,1);min-width:18px;}
+  .donut-wrap{display:flex;align-items:center;justify-content:center;height:130px;position:relative;}
+
+  #s8{background:radial-gradient(ellipse at center,#071828 0%,var(--bg) 70%);flex-direction:column;gap:24px;}
+  .ach-title{font-family:var(--font-head);font-size:18px;color:var(--text);letter-spacing:4px;text-align:center;}
+  .ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:640px;}
+  .ach-badge{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;transition:all .4s;}
+  .ach-badge.unlocked{border-color:rgba(255,183,0,.4);box-shadow:0 0 30px rgba(255,183,0,.15);}
+  .ach-icon{font-size:36px;transition:transform .4s;}
+  .ach-badge.unlocked .ach-icon{animation:badgePop .5s ease;}
+  @keyframes badgePop{0%{transform:scale(0);}70%{transform:scale(1.2);}100%{transform:scale(1);}}
+  .ach-name{font-family:var(--font-head);font-size:10px;color:var(--text);letter-spacing:2px;text-align:center;}
+  .ach-desc{font-size:10px;color:var(--text2);text-align:center;}
+  .ach-badge.locked .ach-icon{filter:grayscale(1);opacity:.4;}
+  .ach-badge.locked .ach-name{color:var(--text2);}
+
+  #s9{padding:0;background:var(--bg2);}
+  .settings-wrap{width:100%;height:100%;display:flex;}
+  .settings-sidebar{width:200px;border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:4px;}
+  .settings-title{font-family:var(--font-head);font-size:12px;color:var(--neon);letter-spacing:3px;margin-bottom:16px;}
+  .settings-nav-item{padding:10px 12px;border-radius:8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .2s;}
+  .settings-nav-item.active{background:rgba(177,77,255,.08);color:var(--neon);}
+  .settings-main{flex:1;padding:28px;display:flex;flex-direction:column;gap:20px;overflow:hidden;}
+  .settings-section-title{font-family:var(--font-head);font-size:14px;color:var(--text);letter-spacing:2px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px;}
+  .lang-toggle{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--border);width:fit-content;}
+  .lang-btn{padding:10px 24px;font-family:var(--font-head);font-size:11px;letter-spacing:2px;cursor:pointer;transition:all .3s;}
+  .lang-btn.active{background:var(--neon);color:#000;}
+  .lang-btn:not(.active){background:transparent;color:var(--text2);}
+  .profile-section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;display:flex;align-items:center;gap:20px;}
+  .big-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--neon2),var(--neon3));display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:26px;color:#000;font-weight:700;box-shadow:0 0 25px rgba(177,77,255,.35);}
+  .profile-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .ps-item{background:rgba(20, 20, 29,.4);border:1px solid var(--border);border-radius:8px;padding:8px 12px;}
+  .ps-val{font-family:var(--font-head);font-size:16px;color:var(--neon);}
+  .ps-key{font-size:10px;color:var(--text2);}
+
+  #sfinal{background:var(--bg);flex-direction:column;gap:16px;position:relative;}
+  .final-glow{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(177,77,255,.08) 0%,transparent 65%);animation:finalGlow 3s ease-in-out infinite;}
+  @keyframes finalGlow{0%,100%{opacity:.6;}50%{opacity:1;}}
+  .final-tagline{font-family:var(--font-head);font-size:18px;letter-spacing:8px;color:var(--text2);animation:fadeUp 1s .8s both;}
+
+  .hidden{display:none!important;}
+  .fade-in{animation:fadeIn .5s both;}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;letter-spacing:2px;font-family:var(--font-head);}
+  .tag-neon{background:rgba(177,77,255,.1);color:var(--neon);border:1px solid rgba(177,77,255,.2);}
+
+  .demo-back{position:fixed;top:14px;left:14px;z-index:10001;background:rgba(5,10,20,.8);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:20px;text-decoration:none;font-family:var(--font-head);font-size:11px;letter-spacing:2px;}
+  .demo-back:hover{border-color:var(--neon);color:var(--neon);}
+</style>
+</head>
+<body>
+<a href="landing.html" class="demo-back">← BACK</a>
+<div id="stage">
+  <canvas id="stars"></canvas>
+  <div id="cursor"></div>
+  <div id="transition"></div>
+  <div id="progress-bar" style="width:0%"></div>
+  <div id="scene-label"></div>
+
+  <div class="scene active" id="s0">
+    <canvas class="particle-field" id="pCanvas"></canvas>
+    <div class="logo-wrap">
+      <div class="logo-hex">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#b14dff"/><stop offset="100%" stop-color="#ff4d8e"/></linearGradient>
+            <filter id="glow"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <polygon points="60,4 110,32 110,88 60,116 10,88 10,32" fill="none" stroke="url(#lg)" stroke-width="2" filter="url(#glow)" opacity=".9"/>
+          <polygon points="60,18 96,38 96,82 60,102 24,82 24,38" fill="none" stroke="url(#lg)" stroke-width="1" opacity=".4"/>
+          <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="url(#lg)" font-family="Orbitron,sans-serif" font-size="14" font-weight="900" filter="url(#glow)">AT</text>
+        </svg>
+      </div>
+      <div class="logo-title">ABOOD Test</div>
+      <div class="logo-sub">Educational Gaming Platform</div>
+    </div>
+  </div>
+
+  <div class="scene" id="s1">
+    <div class="auth-card">
+      <div class="auth-logo">⬡ ABOOD TEST</div>
+      <div class="auth-tabs">
+        <div class="auth-tab" id="tab-register">REGISTER</div>
+        <div class="auth-tab active" id="tab-login">LOGIN</div>
+      </div>
+      <div id="register-form" class="hidden">
+        <div class="field-group"><div class="field-label">USERNAME</div><input class="field-input" id="reg-user" placeholder="Enter username" readonly/></div>
+        <div class="field-group"><div class="field-label">EMAIL</div><input class="field-input" id="reg-email" placeholder="email@example.com" readonly/></div>
+        <div class="field-group"><div class="field-label">PASSWORD</div><input class="field-input" id="reg-pass" type="password" placeholder="••••••••" readonly/></div>
+        <button class="btn-primary">CREATE ACCOUNT</button>
+      </div>
+      <div id="login-form">
+        <div class="field-group"><div class="field-label">EMAIL</div><input class="field-input" id="login-email" placeholder="email@example.com" readonly/></div>
+        <div class="field-group"><div class="field-label">PASSWORD</div><input class="field-input" id="login-pass" type="password" placeholder="••••••••" readonly/></div>
+        <button class="btn-primary" id="login-btn">LOGIN</button>
+        <div id="auth-spinner" class="auth-spinner hidden"><div class="spinner"></div><span>Authenticating…</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s2">
+    <div class="dashboard">
+      <div class="sidebar">
+        <div class="sb-logo">⬡ ABOOD TEST</div>
+        <div class="sb-user">
+          <div class="sb-avatar">A</div>
+          <div class="sb-info"><div class="sb-name">Ahmed Hassan</div><div class="sb-id">#AT-2847</div></div>
+        </div>
+        <div class="nav-item active"><span class="nav-icon">⊞</span>Dashboard</div>
+        <div class="nav-item"><span class="nav-icon">▶</span>Game Modes</div>
+        <div class="nav-item"><span class="nav-icon">◯</span>Social</div>
+        <div class="nav-item"><span class="nav-icon">◫</span>Analytics</div>
+        <div class="nav-item"><span class="nav-icon">★</span>Achievements</div>
+        <div class="nav-item"><span class="nav-icon">⚙</span>Settings</div>
+      </div>
+      <div class="main-area">
+        <div class="topbar">
+          <div class="topbar-title">DASHBOARD</div>
+          <div class="topbar-icon" id="notif-icon">◐<div class="notif-dot"></div></div>
+          <div class="topbar-icon">★</div>
+          <div class="topbar-icon">⚙</div>
+          <div class="topbar-icon" style="font-size:11px;font-family:var(--font-head);letter-spacing:1px;width:auto;padding:0 12px;">EN / AR</div>
+        </div>
+        <div class="content-area">
+          <div class="profile-card">
+            <div class="profile-avatar">A</div>
+            <div class="profile-info">
+              <div class="profile-name">Ahmed Hassan</div>
+              <div class="profile-meta">#AT-2847 · Joined Jan 2026</div>
+              <div class="xp-bar-wrap"><div class="xp-bar"></div></div>
+              <div class="xp-label">3,400 / 5,000 XP · Progress to Level 8</div>
+            </div>
+            <div class="level-badge">LEVEL 7</div>
+          </div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-val">142</div><div class="stat-key">CHALLENGES</div></div>
+            <div class="stat-card"><div class="stat-val">3,400</div><div class="stat-key">TOTAL XP</div></div>
+            <div class="stat-card"><div class="stat-val">87%</div><div class="stat-key">WIN RATE</div></div>
+            <div class="stat-card"><div class="stat-val">28</div><div class="stat-key">FRIENDS</div></div>
+          </div>
+          <div style="display:flex;gap:12px;flex:1;">
+            <div style="flex:1;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;">
+              <div style="font-family:var(--font-head);font-size:11px;color:var(--text2);letter-spacing:2px;margin-bottom:12px;">RECENT ACTIVITY</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="font-size:12px;color:var(--text);padding:8px;background:rgba(177,77,255,.04);border-radius:8px;border-left:2px solid var(--neon);">✓ Completed Frontend Challenge #12 · +150 XP</div>
+                <div style="font-size:12px;color:var(--text);padding:8px;background:rgba(177,77,255,.04);border-radius:8px;border-left:2px solid var(--neon3);">★ New Badge: Clinical Expert · Unlocked</div>
+                <div style="font-size:12px;color:var(--text);padding:8px;background:rgba(177,77,255,.04);border-radius:8px;border-left:2px solid var(--neon2);">◯ Team Alpha won Match #7 · Victory</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="notif-popup" class="notif-popup hidden">
+        <div class="notif-title">NOTIFICATIONS</div>
+        <div class="notif-item">New team invitation from Dr. Sara</div>
+        <div class="notif-item">Achievement unlocked: Quick Thinker</div>
+        <div class="notif-item">Weekly report is ready to view</div>
+      </div>
+      <div class="ai-sidebar">
+        <div class="ai-header"><div class="ai-dot"></div>AI ASSISTANT</div>
+        <div class="ai-messages">
+          <div class="ai-msg bot">Hello Ahmed! Ready to tackle some coding challenges today?</div>
+          <div class="ai-msg user-msg">Yes, let's go!</div>
+          <div class="ai-msg bot">Great! I recommend starting with the Frontend track — it matches your skill level.</div>
+        </div>
+        <div class="ai-input-wrap">
+          <input class="ai-input" placeholder="Ask anything…" readonly/>
+          <button class="ai-send">▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s3">
+    <div class="cats-wrap">
+      <div class="cats-header"><div class="cats-title">GAME MODES</div><div class="tag tag-neon">SELECT CATEGORY</div></div>
+      <div class="cats-grid">
+        <div class="cat-card cat-fe"><div class="glitch-line" style="top:40%;"></div><div class="cat-glyph">◐</div><div class="cat-title">FRONTEND</div><div class="cat-desc">HTML · CSS · UI Design Challenges</div><div class="cat-tag">COLORFUL · CREATIVE</div></div>
+        <div class="cat-card cat-be"><div class="glitch-line" style="top:60%;animation-delay:.5s;"></div><div class="cat-glyph">⚙</div><div class="cat-title">BACKEND</div><div class="cat-desc">APIs · Servers · Data Architecture</div><div class="cat-tag">TECH · LOGIC</div></div>
+        <div class="cat-card cat-sec"><div class="glitch-line" style="top:35%;animation-delay:1s;"></div><div class="cat-glyph">⚷</div><div class="cat-title">CYBERSECURITY</div><div class="cat-desc">Penetration Testing · Threat Analysis</div><div class="cat-tag" style="background:rgba(0,255,80,.1);color:#00ff50;border:1px solid rgba(0,255,80,.2);">HACKER STYLE</div></div>
+        <div class="cat-card cat-ehr"><div class="cat-glyph">✚</div><div class="cat-title">EHR HOSPITAL SYSTEM</div><div class="cat-desc">Patient Care · Clinical Decisions · Triage</div><div class="cat-tag">MEDICAL · CLEAN</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s4">
+    <div class="game-wrap">
+      <div class="game-topbar">
+        <div class="game-title">▶ FRONTEND CHALLENGE</div>
+        <div class="game-xp-mini">★ 3,400 XP &nbsp;|&nbsp; <span style="color:var(--neon)">Level 7</span></div>
+        <div style="display:flex;gap:10px;"><div class="tag tag-neon">CHALLENGE #13</div><div class="tag" style="background:rgba(255,183,0,.1);color:var(--warn);border:1px solid rgba(255,183,0,.2);">MEDIUM</div></div>
+      </div>
+      <div class="game-body">
+        <div class="patient-card">
+          <div><div class="pc-label">TASK BRIEF</div><div class="pc-name">Build a Card</div></div>
+          <div class="pc-row"><span>Difficulty</span><span style="color:var(--text)">Medium</span></div>
+          <div class="pc-row"><span>Reward</span><span style="color:var(--text)">+200 XP</span></div>
+          <div class="pc-row"><span>Time</span><span style="color:var(--warn)">5 min</span></div>
+          <div><div class="pc-label" style="margin-bottom:6px;">REQUIREMENTS</div>
+            <div class="pc-symptom">Use flexbox or grid for layout</div>
+            <div class="pc-symptom" style="margin-top:6px;">Apply border-radius and shadow</div>
+            <div class="pc-symptom" style="margin-top:6px;">Responsive design</div>
+          </div>
+        </div>
+        <div class="game-right">
+          <div class="question-card">
+            <div class="q-label">CHALLENGE QUESTION</div>
+            <div class="q-text">Which CSS property is used to center child elements inside a flex container?</div>
+            <div class="answers">
+              <div class="answer-btn" id="ans-0">justify-content: center</div>
+              <div class="answer-btn" id="ans-1">text-align: center</div>
+              <div class="answer-btn" id="ans-2">margin: auto</div>
+              <div class="answer-btn" id="ans-3">align: middle</div>
+            </div>
+          </div>
+          <div class="xp-gain" id="xp-gain-card" style="opacity:0;transition:opacity .4s;">
+            <div class="xp-icon">✓</div>
+            <div class="xp-info">
+              <div class="xp-title">CORRECT! +200 XP EARNED</div>
+              <div class="xp-bar-full"><div class="xp-fill" id="xp-fill" style="width:68%;"></div></div>
+              <div style="font-size:11px;color:var(--text2);margin-top:5px;font-family:var(--font-mono);">3,600 / 5,000 XP</div>
+            </div>
+            <div class="levelup-badge" id="levelup" style="opacity:0;transition:opacity .4s;">▲ LEVEL UP!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s5">
+    <div class="social-wrap">
+      <div class="social-list">
+        <div class="social-header">PLAYERS ONLINE</div>
+        <div class="user-row" id="ur-0"><div class="user-ava" style="background:linear-gradient(135deg,#ff6b6b,#ff8e53);">S</div><div style="flex:1;"><div style="font-size:12px;color:var(--text);">Sara Ali</div><div style="font-size:10px;color:var(--text2);">Level 9</div></div><div class="user-online"></div><button class="add-friend-btn" id="add-0">+ Add</button></div>
+        <div class="user-row" id="ur-1"><div class="user-ava" style="background:linear-gradient(135deg,#667eea,#764ba2);">M</div><div style="flex:1;"><div style="font-size:12px;color:var(--text);">Mohamed K.</div><div style="font-size:10px;color:var(--text2);">Level 6</div></div><div class="user-online"></div><button class="add-friend-btn" id="add-1">+ Add</button></div>
+        <div class="user-row selected"><div class="user-ava" style="background:linear-gradient(135deg,#00b09b,#96c93d);">L</div><div style="flex:1;"><div style="font-size:12px;color:var(--text);">Layla Hassan</div><div style="font-size:10px;color:var(--text2);">Level 11</div></div><div class="user-online"></div></div>
+      </div>
+      <div class="chat-area">
+        <div class="chat-header"><div class="user-ava" style="width:26px;height:26px;background:linear-gradient(135deg,#00b09b,#96c93d);font-size:11px;">L</div>Layla Hassan · <span style="color:var(--success);font-size:10px;">● Online</span></div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg"><div class="chat-ava" style="background:linear-gradient(135deg,#00b09b,#96c93d);">L</div><div class="chat-bubble">Hey! Did you finish the challenge yet?</div></div>
+          <div class="chat-msg mine"><div class="chat-ava" style="background:linear-gradient(135deg,var(--neon2),var(--neon3));">A</div><div class="chat-bubble">Just completed it! Got 200 XP</div></div>
+          <div class="chat-msg"><div class="chat-ava" style="background:linear-gradient(135deg,#00b09b,#96c93d);">L</div><div class="chat-bubble">Amazing! Let's do the next one together?</div></div>
+          <div id="typing-row" class="chat-msg hidden"><div class="chat-ava" style="background:linear-gradient(135deg,#00b09b,#96c93d);">L</div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
+        </div>
+        <div class="chat-input-row"><input class="chat-input" id="chat-input" placeholder="Type a message…" readonly/><button class="chat-send">▶</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s6">
+    <div class="ai-full">
+      <div class="ai-main-chat">
+        <div class="ai-title-bar"><div class="ai-dot"></div>AI ASSISTANT <span style="font-size:10px;color:var(--text2);margin-left:auto;">Powered by ABOOD-AI v2.1</span></div>
+        <div class="ai-chat-area" id="ai-chat-area">
+          <div class="ai-chat-msg bot">Hello Ahmed! I'm your coding assistant. How can I help today?</div>
+          <div class="ai-chat-msg user-msg" id="ai-user-msg" style="opacity:0;transition:opacity .3s;">Explain CSS Flexbox to me</div>
+          <div class="ai-chat-msg bot" id="ai-bot-resp" style="opacity:0;transition:opacity .3s;"></div>
+          <div class="ai-typing hidden" id="ai-typing-ind"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>ABOOD-AI is analyzing…</span></div>
+        </div>
+        <div class="ai-input-area"><input class="ai-main-input" id="ai-main-input" placeholder="Ask anything…" readonly/><button class="ai-main-send">▶</button></div>
+      </div>
+      <div style="width:240px;border-left:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-family:var(--font-head);font-size:10px;color:var(--text2);letter-spacing:2px;">SUGGESTED QUESTIONS</div>
+        <div style="font-size:11px;color:var(--neon);padding:8px;background:rgba(177,77,255,.06);border-radius:8px;border:1px solid var(--border);cursor:pointer;">How do CSS gradients work?</div>
+        <div style="font-size:11px;color:var(--text2);padding:8px;background:rgba(177,77,255,.03);border-radius:8px;border:1px solid var(--border);cursor:pointer;">Explain async/await in JavaScript</div>
+        <div style="font-size:11px;color:var(--text2);padding:8px;background:rgba(177,77,255,.03);border-radius:8px;border:1px solid var(--border);cursor:pointer;">What is the DOM?</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s7">
+    <div class="analytics-wrap">
+      <div class="analytics-header">▣ ANALYTICS DASHBOARD</div>
+      <div class="analytics-grid">
+        <div class="metric-card"><div class="metric-val" id="m1">0</div><div class="metric-label">TOTAL XP EARNED</div></div>
+        <div class="metric-card"><div class="metric-val" id="m2">0</div><div class="metric-label">CHALLENGES COMPLETED</div></div>
+        <div class="metric-card"><div class="metric-val" id="m3">0%</div><div class="metric-label">ACCURACY RATE</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title">WEEKLY XP PROGRESS</div>
+          <div class="bar-chart" id="bar-chart">
+            <div class="bar" style="height:0%;width:18px;" data-h="55%"></div><div class="bar" style="height:0%;width:18px;" data-h="70%"></div><div class="bar" style="height:0%;width:18px;" data-h="45%"></div><div class="bar" style="height:0%;width:18px;" data-h="80%"></div><div class="bar" style="height:0%;width:18px;" data-h="65%"></div><div class="bar" style="height:0%;width:18px;" data-h="90%"></div><div class="bar" style="height:0%;width:18px;" data-h="75%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2);font-family:var(--font-mono);margin-top:6px;"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">CATEGORY PERFORMANCE</div>
+          <div class="donut-wrap">
+            <svg width="130" height="130" viewBox="0 0 130 130">
+              <circle cx="65" cy="65" r="50" fill="none" stroke="rgba(177,77,255,.08)" stroke-width="14"/>
+              <circle cx="65" cy="65" r="50" fill="none" stroke="var(--neon)" stroke-width="14" stroke-dasharray="0 314" id="donut-c1" transform="rotate(-90,65,65)" style="transition:stroke-dasharray 1.5s cubic-bezier(.2,1,.3,1)"/>
+              <circle cx="65" cy="65" r="50" fill="none" stroke="var(--neon3)" stroke-width="14" stroke-dasharray="0 314" id="donut-c2" transform="rotate(-90,65,65)" style="transition:stroke-dasharray 1.5s cubic-bezier(.2,1,.3,1) .2s"/>
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="var(--neon)" font-family="Orbitron,sans-serif" font-size="16" font-weight="700">87%</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="s8">
+    <div class="ach-title">★ ACHIEVEMENTS & REWARDS</div>
+    <div class="ach-grid">
+      <div class="ach-badge locked" id="ach-0"><div class="ach-icon">◐</div><div class="ach-name">FIRST CHALLENGE</div><div class="ach-desc">Complete your first challenge</div></div>
+      <div class="ach-badge locked" id="ach-1"><div class="ach-icon">▲</div><div class="ach-name">LEVEL 2 REACHED</div><div class="ach-desc">Reach player level 2</div></div>
+      <div class="ach-badge locked" id="ach-2"><div class="ach-icon">⚡</div><div class="ach-name">HOT STREAK</div><div class="ach-desc">5 correct answers in a row</div></div>
+      <div class="ach-badge locked" id="ach-3"><div class="ach-icon">◯</div><div class="ach-name">TEAM PLAYER</div><div class="ach-desc">Join a team & win</div></div>
+      <div class="ach-badge locked" id="ach-4"><div class="ach-icon">✦</div><div class="ach-name">QUICK THINKER</div><div class="ach-desc">Answer in under 10s</div></div>
+      <div class="ach-badge locked" id="ach-5"><div class="ach-icon">★</div><div class="ach-name">EXPERT CODER</div><div class="ach-desc">Complete an entire track</div></div>
+    </div>
+  </div>
+
+  <div class="scene" id="s9">
+    <div class="settings-wrap">
+      <div class="settings-sidebar">
+        <div class="settings-title">SETTINGS</div>
+        <div class="settings-nav-item active">Profile</div>
+        <div class="settings-nav-item">Language</div>
+        <div class="settings-nav-item">Notifications</div>
+        <div class="settings-nav-item">Security</div>
+        <div class="settings-nav-item">Gameplay</div>
+      </div>
+      <div class="settings-main">
+        <div class="settings-section-title">LANGUAGE & REGION</div>
+        <div class="lang-toggle"><div class="lang-btn active" id="lang-en">ENGLISH</div><div class="lang-btn" id="lang-ar">عربي</div></div>
+        <div style="margin-top:12px;padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:12px;font-size:13px;color:var(--text2);">Interface language: <span style="color:var(--neon);" id="lang-display">English</span></div>
+        <div class="settings-section-title" style="margin-top:8px;">PROFILE</div>
+        <div class="profile-section">
+          <div class="big-avatar">A</div>
+          <div style="flex:1;">
+            <div style="font-family:var(--font-head);font-size:16px;color:var(--text);margin-bottom:3px;">Ahmed Hassan</div>
+            <div style="font-size:11px;color:var(--text2);font-family:var(--font-mono);">#AT-2847 · ahmed@example.com</div>
+            <div class="profile-stats">
+              <div class="ps-item"><div class="ps-val">7</div><div class="ps-key">LEVEL</div></div>
+              <div class="ps-item"><div class="ps-val">3,400</div><div class="ps-key">XP</div></div>
+              <div class="ps-item"><div class="ps-val">142</div><div class="ps-key">CHALLENGES</div></div>
+              <div class="ps-item"><div class="ps-val">28</div><div class="ps-key">FRIENDS</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scene" id="sfinal">
+    <div class="final-glow"></div>
+    <div class="logo-wrap" style="z-index:1;">
+      <div class="logo-hex">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#b14dff"/><stop offset="100%" stop-color="#ff4d8e"/></linearGradient>
+            <filter id="glow2"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <polygon points="60,4 110,32 110,88 60,116 10,88 10,32" fill="none" stroke="url(#lg2)" stroke-width="2" filter="url(#glow2)" opacity=".9"/>
+          <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="url(#lg2)" font-family="Orbitron,sans-serif" font-size="14" font-weight="900" filter="url(#glow2)">AT</text>
+        </svg>
+      </div>
+      <div class="logo-title" style="animation:none;">ABOOD Test</div>
+      <div class="logo-sub" style="animation:none;">Learn. Play. Evolve.</div>
+      <div class="final-tagline">THE FUTURE OF CODING EDUCATION</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function scaleStage(){const st=document.getElementById('stage');const sw=window.innerWidth,sh=window.innerHeight;const scale=Math.min(sw/1280,sh/720);st.style.transform=`scale(${scale})`;st.style.marginLeft=((sw-1280*scale)/2)+'px';st.style.marginTop=((sh-720*scale)/2)+'px';}
+scaleStage();window.addEventListener('resize',scaleStage);
+
+(function(){const c=document.getElementById('stars');const ctx=c.getContext('2d');c.width=1280;c.height=720;const stars=Array.from({length:160},()=>({x:Math.random()*1280,y:Math.random()*720,r:Math.random()*1.2+.2,a:Math.random(),da:(Math.random()-.5)*.005}));function draw(){ctx.clearRect(0,0,1280,720);stars.forEach(s=>{s.a+=s.da;if(s.a<=0||s.a>=1)s.da*=-1;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(220, 200, 255,${s.a*.7})`;ctx.fill();});requestAnimationFrame(draw);}draw();})();
+(function(){const c=document.getElementById('pCanvas');if(!c)return;const ctx=c.getContext('2d');c.width=1280;c.height=720;const pts=Array.from({length:50},()=>({x:Math.random()*1280,y:Math.random()*720,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:Math.random()*2+1,a:Math.random()*.6+.1}));function draw(){ctx.clearRect(0,0,1280,720);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>1280)p.vx*=-1;if(p.y<0||p.y>720)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(177,77,255,${p.a})`;ctx.fill();});requestAnimationFrame(draw);}draw();})();
+
+const cursor=document.getElementById('cursor');let cx=640,cy=360;
+function moveCursorTo(tx,ty,ms,cb){const startX=cx,startY=cy,t0=performance.now();function step(t){const p=Math.min((t-t0)/ms,1);const ep=1-(1-p)*(1-p)*(1-p);cx=startX+(tx-startX)*ep;cy=startY+(ty-startY)*ep;cursor.style.left=cx+'px';cursor.style.top=cy+'px';if(p<1)requestAnimationFrame(step);else if(cb)cb();}requestAnimationFrame(step);}
+function clickAt(tx,ty,cb,ms=600){moveCursorTo(tx,ty,ms,()=>{cursor.classList.add('click');const r=document.createElement('div');r.className='ripple';r.style.left=tx+'px';r.style.top=ty+'px';document.getElementById('stage').appendChild(r);setTimeout(()=>{cursor.classList.remove('click');r.remove();if(cb)cb();},500);});}
+cursor.style.left=cx+'px';cursor.style.top=cy+'px';
+
+const scenes=['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','sfinal'];
+const sceneNames=['INTRO','AUTH','DASHBOARD','GAME MODES','GAMEPLAY','SOCIAL','AI ASSISTANT','ANALYTICS','ACHIEVEMENTS','SETTINGS','ABOOD TEST'];
+let currentScene=0;
+const label=document.getElementById('scene-label');
+const progressBar=document.getElementById('progress-bar');
+const trans=document.getElementById('transition');
+
+function showScene(idx){document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));document.getElementById(scenes[idx]).classList.add('active');currentScene=idx;const pct=(idx/(scenes.length-1))*100;progressBar.style.width=pct+'%';label.textContent=`${String(idx).padStart(2,'0')} — ${sceneNames[idx]}`;label.classList.add('show');setTimeout(()=>label.classList.remove('show'),2500);}
+function transition(cb){trans.classList.add('flash');setTimeout(()=>{trans.classList.remove('flash');if(cb)cb();},350);}
+function typeInto(el,text,speed,cb){el.value='';let i=0;el.classList.add('focused','filled');function next(){if(i<text.length){el.value+=text[i++];setTimeout(next,speed);}else{el.classList.remove('focused');if(cb)cb();}}next();}
+function typeContent(el,text,speed,cb){el.textContent='';let i=0;function next(){if(i<text.length){el.textContent+=text[i++];setTimeout(next,speed);}else{if(cb)cb();}}next();}
+function animateNum(el,target,suffix,dur){const start=performance.now();function step(t){const p=Math.min((t-start)/dur,1);const ep=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;el.textContent=Math.round(ep*target)+(suffix||'');if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function runDemo(){
+  showScene(0);await delay(3200);
+  transition(()=>showScene(1));await delay(600);
+  clickAt(310,178);await delay(700);
+  document.getElementById('tab-register').classList.add('active');document.getElementById('tab-login').classList.remove('active');
+  document.getElementById('register-form').classList.remove('hidden');document.getElementById('login-form').classList.add('hidden');await delay(400);
+  clickAt(440,290);await delay(400);await new Promise(r=>typeInto(document.getElementById('reg-user'),'ahmed_hassan',60,r));await delay(300);
+  clickAt(440,340);await delay(300);await new Promise(r=>typeInto(document.getElementById('reg-email'),'ahmed@abood.io',55,r));await delay(300);
+  clickAt(440,390);await delay(300);await new Promise(r=>typeInto(document.getElementById('reg-pass'),'••••••••',80,r));await delay(600);
+  clickAt(360,178);await delay(700);
+  document.getElementById('tab-login').classList.add('active');document.getElementById('tab-register').classList.remove('active');
+  document.getElementById('login-form').classList.remove('hidden');document.getElementById('register-form').classList.add('hidden');await delay(400);
+  clickAt(440,290);await delay(400);await new Promise(r=>typeInto(document.getElementById('login-email'),'ahmed@abood.io',55,r));await delay(300);
+  clickAt(440,340);await delay(300);await new Promise(r=>typeInto(document.getElementById('login-pass'),'••••••••',80,r));await delay(500);
+  clickAt(440,400);await delay(300);
+  document.getElementById('login-btn').style.opacity='.5';document.getElementById('auth-spinner').classList.remove('hidden');await delay(1800);
+
+  transition(()=>showScene(2));await delay(800);
+  for(let i=0;i<4;i++){const cards=document.querySelectorAll('.stat-card');if(cards[i]){const r=cards[i].getBoundingClientRect();const sr=document.getElementById('stage').getBoundingClientRect();const scale=sr.width/1280;moveCursorTo((r.left-sr.left)/scale+r.width/scale/2,(r.top-sr.top)/scale+r.height/scale/2,400);await delay(450);}}
+  await delay(300);clickAt(978,28);await delay(400);
+  const np=document.getElementById('notif-popup');np.classList.remove('hidden');np.style.top='56px';np.style.right='60px';np.style.position='absolute';await delay(2000);np.classList.add('hidden');await delay(400);
+  clickAt(90,200);await delay(300);clickAt(90,242);await delay(300);clickAt(90,284);await delay(500);
+
+  transition(()=>showScene(3));await delay(500);
+  for(let i=0;i<4;i++){const cards=document.querySelectorAll('.cat-card');const cx2=[240,720,240,720][i],cy2=[250,250,540,540][i];moveCursorTo(cx2,cy2,600);await delay(400);cards[i].classList.add('hovered');await delay(600);cards[i].classList.remove('hovered');}
+  await delay(300);clickAt(240,250);await delay(600);
+
+  transition(()=>showScene(4));await delay(1000);
+  moveCursorTo(500,450);await delay(500);moveCursorTo(820,450);await delay(400);moveCursorTo(500,490);await delay(400);
+  clickAt(500,430,async()=>{document.getElementById('ans-0').classList.add('correct');await delay(300);const xgc=document.getElementById('xp-gain-card');xgc.style.opacity='1';setTimeout(()=>{document.getElementById('xp-fill').style.width='78%';},400);setTimeout(()=>{document.getElementById('levelup').style.opacity='1';},1200);},400);
+  await delay(3200);
+
+  transition(()=>showScene(5));await delay(600);
+  clickAt(230,158);await delay(500);document.getElementById('add-0').classList.add('added');document.getElementById('add-0').textContent='✓ Added';await delay(600);
+  clickAt(230,198);await delay(500);document.getElementById('add-1').classList.add('added');document.getElementById('add-1').textContent='✓ Added';await delay(500);
+  document.getElementById('typing-row').classList.remove('hidden');await delay(1500);document.getElementById('typing-row').classList.add('hidden');
+  const newMsg=document.createElement('div');newMsg.className='chat-msg fade-in';newMsg.innerHTML=`<div class="chat-ava" style="background:linear-gradient(135deg,#00b09b,#96c93d);">L</div><div class="chat-bubble">Sure! Let's crush it together!</div>`;document.getElementById('chat-messages').appendChild(newMsg);await delay(600);
+  clickAt(580,640);await delay(300);await new Promise(r=>typeInto(document.getElementById('chat-input'),'Sounds great!',60,r));await delay(800);
+
+  transition(()=>showScene(6));await delay(600);
+  const aiInput=document.getElementById('ai-main-input');clickAt(560,640);await delay(400);aiInput.classList.add('typing-glow');
+  await new Promise(r=>typeInto(aiInput,'Explain CSS Flexbox to me',55,r));await delay(500);
+  clickAt(840,640);await delay(300);aiInput.value='';aiInput.classList.remove('typing-glow');
+  document.getElementById('ai-user-msg').style.opacity='1';await delay(500);
+  document.getElementById('ai-typing-ind').classList.remove('hidden');await delay(2000);document.getElementById('ai-typing-ind').classList.add('hidden');
+  const botResp=document.getElementById('ai-bot-resp');botResp.style.opacity='1';
+  typeContent(botResp,'Flexbox is a CSS layout model that arranges elements in rows or columns. Use display:flex on the container, then control alignment with justify-content (horizontal) and align-items (vertical). Perfect for centering, navbars, and responsive layouts.',25);
+  await delay(4000);
+
+  transition(()=>showScene(7));await delay(400);
+  animateNum(document.getElementById('m1'),3400,'',1200);animateNum(document.getElementById('m2'),142,'',1200);animateNum(document.getElementById('m3'),87,'%',1200);
+  setTimeout(()=>{document.querySelectorAll('.bar').forEach((b,i)=>{setTimeout(()=>{b.style.height=b.dataset.h;},i*100);});},300);
+  setTimeout(()=>{document.getElementById('donut-c1').setAttribute('stroke-dasharray','174 314');setTimeout(()=>{document.getElementById('donut-c2').setAttribute('stroke-dasharray','60 314');document.getElementById('donut-c2').setAttribute('stroke-dashoffset',String(-174));},400);},500);
+  await delay(3500);
+
+  transition(()=>showScene(8));await delay(400);
+  const achs=[0,1,2,4,5];for(let i=0;i<achs.length;i++){await delay(320);document.getElementById('ach-'+achs[i]).classList.remove('locked');document.getElementById('ach-'+achs[i]).classList.add('unlocked');}
+  await delay(2000);
+
+  transition(()=>showScene(9));await delay(800);
+  clickAt(260,200);await delay(600);
+  document.getElementById('lang-en').classList.remove('active');document.getElementById('lang-ar').classList.add('active');document.getElementById('lang-display').textContent='العربية';document.getElementById('lang-display').style.color='var(--neon3)';await delay(1200);
+  clickAt(180,200);await delay(500);
+  document.getElementById('lang-ar').classList.remove('active');document.getElementById('lang-en').classList.add('active');document.getElementById('lang-display').textContent='English';document.getElementById('lang-display').style.color='var(--neon)';
+  await delay(2000);
+
+  transition(()=>showScene(scenes.length-1));await delay(100);
+  await delay(5000);
+  transition(()=>{showScene(0);});await delay(1000);runDemo();
+}
+
+document.fonts.ready.then(()=>{setTimeout(runDemo,800);});
+</script>
+</body>
+</html>

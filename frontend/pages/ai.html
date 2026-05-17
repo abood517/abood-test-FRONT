@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@300;400;500;600&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    .ai-layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; min-height: calc(100vh - 96px); }
+    .ai-main {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .ai-bar {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-head);
+      font-size: 14px;
+      color: var(--neon);
+      letter-spacing: 2px;
+    }
+    .ai-dot { width: 10px; height: 10px; background: var(--neon3); border-radius: 50%; animation: blink 1.5s ease-in-out infinite; box-shadow: 0 0 8px var(--neon3); }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .ai-subtitle { font-size: 10px; color: var(--text2); margin-left: auto; letter-spacing: 1px; }
+    html[dir="rtl"] .ai-subtitle { margin-left: 0; margin-right: auto; }
+
+    .ai-conv { flex: 1; padding: 22px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; min-height: 420px; }
+    .ai-msg {
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 78%;
+    }
+    .ai-msg.user {
+      background: rgba(138, 43, 226,0.2);
+      color: var(--text);
+      margin-left: auto;
+      border: 1px solid rgba(138, 43, 226,0.25);
+    }
+    html[dir="rtl"] .ai-msg.user { margin-left: 0; margin-right: auto; }
+    .ai-msg.bot { background: rgba(177, 77, 255,0.06); color: var(--text); border: 1px solid rgba(177, 77, 255,0.1); }
+
+    .ai-typing-row { display: flex; align-items: center; gap: 10px; color: var(--text2); font-size: 12px; font-family: var(--font-mono); }
+    .typing-indicator { display: flex; gap: 4px; padding: 10px 14px; background: rgba(177, 77, 255,0.08); border-radius: 14px; width: fit-content; }
+    .typing-dot { width: 6px; height: 6px; background: var(--neon); border-radius: 50%; animation: typingBounce 0.8s ease-in-out infinite; }
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typingBounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+
+    .ai-input-row { display: flex; gap: 10px; padding: 16px 22px; border-top: 1px solid var(--border); }
+    .ai-input {
+      flex: 1;
+      background: rgba(20, 20, 29,0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .ai-input:focus { border-color: var(--neon); box-shadow: 0 0 15px rgba(177, 77, 255,0.2); }
+    .ai-send {
+      background: linear-gradient(135deg, var(--neon2), var(--neon));
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      color: #000;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .ai-suggestions {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: fit-content;
+    }
+    .ai-suggestions h4 {
+      font-family: var(--font-head);
+      font-size: 11px;
+      color: var(--text2);
+      letter-spacing: 2px;
+    }
+    .suggestion-chip {
+      font-size: 12px;
+      color: var(--text2);
+      padding: 10px 12px;
+      background: rgba(177, 77, 255,0.04);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      line-height: 1.5;
+    }
+    .suggestion-chip:hover { color: var(--neon); border-color: var(--neon); background: rgba(177, 77, 255,0.08); }
+
+    @media (max-width: 900px) {
+      .ai-layout { grid-template-columns: 1fr; }
+      .ai-suggestions { order: -1; flex-direction: row; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+<div id="page">
+  <div class="ai-layout">
+    <div class="ai-main">
+      <div class="ai-bar">
+        <div class="ai-dot"></div>
+        <span data-i18n="ai.title">AI ASSISTANT</span>
+        <span class="ai-subtitle" data-i18n="ai.subtitle">Powered by ABOOD-AI</span>
+      </div>
+      <div class="ai-conv" id="conv">
+        <div class="ai-msg bot" data-i18n="ai.greeting">Hello! I'm your AI coding assistant.</div>
+      </div>
+      <div class="ai-input-row">
+        <input class="ai-input" id="input" data-i18n-placeholder="ai.placeholder" placeholder="Ask any coding question…">
+        <button class="ai-send" id="send">▶</button>
+      </div>
+    </div>
+
+    <div class="ai-suggestions">
+      <h4 data-i18n="ai.suggestions">SUGGESTED QUESTIONS</h4>
+      <div class="suggestion-chip" data-q="Explain CSS Flexbox">Explain CSS Flexbox</div>
+      <div class="suggestion-chip" data-q="How does CSS Grid work?">How does CSS Grid work?</div>
+      <div class="suggestion-chip" data-q="What is async/await in JavaScript?">What is async/await in JavaScript?</div>
+      <div class="suggestion-chip" data-q="Explain the DOM">Explain the DOM</div>
+      <div class="suggestion-chip" data-q="How do I make a responsive page?">How do I make a responsive page?</div>
+      <div class="suggestion-chip" data-q="What are array map, filter, reduce?">map, filter, reduce explained</div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+<script src="../js/app.js"></script>
+<script>
+  Auth.requireAuth();
+  Shell.mount({ active: 'ai', title: { text: 'AI ASSISTANT', i18n: 'shell.ai' } });
+
+  const conv = document.getElementById('conv');
+  const input = document.getElementById('input');
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  async function ask(question) {
+    if (!question.trim()) return;
+    input.value = '';
+    conv.insertAdjacentHTML('beforeend', `<div class="ai-msg user">${escapeHtml(question)}</div>`);
+
+    // Typing indicator
+    const typingId = 'typing_' + Date.now();
+    conv.insertAdjacentHTML('beforeend', `
+      <div class="ai-typing-row" id="${typingId}">
+        <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+        <span>ABOOD-AI is thinking…</span>
+      </div>
+    `);
+    conv.scrollTop = conv.scrollHeight;
+
+    try {
+      const reply = await API.aiAsk(question);
+      document.getElementById(typingId)?.remove();
+      conv.insertAdjacentHTML('beforeend', `<div class="ai-msg bot">${escapeHtml(reply.answer)}</div>`);
+    } catch (e) {
+      document.getElementById(typingId)?.remove();
+      conv.insertAdjacentHTML('beforeend', `<div class="ai-msg bot">Sorry, I'm offline. Try again later.</div>`);
+    }
+    conv.scrollTop = conv.scrollHeight;
+  }
+
+  document.getElementById('send').addEventListener('click', () => ask(input.value));
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') ask(input.value); });
+  document.querySelectorAll('.suggestion-chip').forEach(chip => {
+    chip.addEventListener('click', () => ask(chip.dataset.q));
+  });
+</script>
+</body>
+</html>

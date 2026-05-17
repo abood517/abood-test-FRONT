@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Challenges</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+    html[dir="rtl"] * { font-family: 'Cairo', sans-serif; }
+    html[dir="rtl"] .brand, html[dir="rtl"] .section-title { font-family: 'Orbitron', 'Cairo', sans-serif; }
+
+    .lang-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 20px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .lang-toggle:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+    .lang-toggle svg { width: 13px; height: 13px; }
+
+    :root {
+      --bg-black: #0a0a0f;
+      --bg-card: #14141d;
+      --bg-card-hover: #1c1c28;
+      --accent-purple: #b14dff;
+      --accent-cyan: #ff4d8e;
+      --accent-green: #4dffaa;
+      --accent-pink: #ff4d8e;
+      --accent-amber: #ffaa4d;
+      --text-primary: #ffffff;
+      --text-secondary: #8b8ba0;
+      --text-muted: #5a5a6e;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    body { background: var(--bg-black); color: var(--text-primary); min-height: 100vh; }
+
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 1;
+    }
+
+    .top-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 24px 48px; border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .brand {
+      font-family: 'Orbitron', sans-serif; font-size: 22px;
+      font-weight: 700; letter-spacing: 4px; cursor: pointer;
+    }
+    .brand span { color: var(--accent-purple); }
+
+    .user-stats { display: flex; gap: 12px; align-items: center; }
+
+    .stat-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 20px; font-size: 13px;
+    }
+    .stat-pill .label { color: var(--text-muted); }
+    .stat-pill .value { color: var(--text-primary); font-weight: 600; }
+
+    .logout-btn {
+      padding: 8px 18px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 20px; cursor: pointer; font-size: 13px;
+    }
+
+    .main-container { max-width: 1100px; margin: 0 auto; padding: 48px; position: relative; z-index: 2; }
+
+    .back-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-secondary); padding: 10px 18px;
+      border-radius: 20px; cursor: pointer; font-size: 13px;
+      margin-bottom: 32px; display: inline-flex; align-items: center;
+      gap: 8px; transition: all 0.2s;
+    }
+    .back-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
+
+    .section-header { margin-bottom: 40px; }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif; font-size: 36px;
+      font-weight: 700; letter-spacing: 3px; margin-bottom: 8px;
+    }
+
+    .section-desc { color: var(--text-secondary); font-size: 15px; }
+
+    .challenges-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .challenge-item {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 22px 28px;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; transition: all 0.3s;
+    }
+
+    .challenge-item:hover {
+      background: var(--bg-card-hover); border-color: var(--accent-purple);
+      transform: translateX(4px);
+    }
+
+    .challenge-item.completed { border-color: var(--accent-green); }
+
+    .challenge-info { flex: 1; }
+
+    .challenge-title {
+      font-size: 17px; font-weight: 600; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .check-mark {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent-green); display: flex;
+      align-items: center; justify-content: center;
+      color: var(--bg-black); font-size: 13px; font-weight: 700;
+    }
+
+    .challenge-desc { color: var(--text-secondary); font-size: 13px; }
+
+    .challenge-meta { display: flex; gap: 12px; align-items: center; }
+
+    .difficulty {
+      padding: 4px 12px; border-radius: 12px;
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .difficulty.easy { background: rgba(77, 255, 170, 0.1); color: var(--accent-green); }
+    .difficulty.medium { background: rgba(255, 170, 77, 0.1); color: var(--accent-amber); }
+    .difficulty.hard { background: rgba(255, 77, 142, 0.1); color: var(--accent-pink); }
+
+    .reward {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .reward.xp { color: var(--accent-cyan); }
+    .reward.coins { color: var(--accent-amber); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+
+    @media (max-width: 768px) {
+      .top-nav { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+      .main-container { padding: 24px 20px; }
+      .section-title { font-size: 26px; }
+      .challenge-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .challenge-meta { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand" onclick="window.location.href='hub.html'">ABOOD<span> TEST</span></div>
+    <div class="user-stats">
+      <div class="stat-pill"><span class="label" data-i18n="hub.xp">XP</span><span class="value" id="userXp">0</span></div>
+      <div class="stat-pill"><span class="label" data-i18n="hub.coins">COINS</span><span class="value" id="userCoins">0</span></div>
+      <div class="stat-pill"><span class="label" data-i18n="hub.level">LVL</span><span class="value" id="userLevel">1</span></div>
+      <button class="lang-toggle" id="langToggle" title="Switch language">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span class="lang-toggle-label">AR</span>
+      </button>
+      <button class="logout-btn" onclick="Auth.logout()" data-i18n="nav.logout">Log out</button>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <button class="back-btn" onclick="window.location.href='hub.html'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <span data-i18n="section.back">Back to modes</span>
+    </button>
+
+    <div class="section-header">
+      <div class="section-title" id="sectionTitle" data-i18n="hub.loading">Loading...</div>
+      <div class="section-desc" id="sectionDesc"></div>
+    </div>
+
+    <div class="challenges-list" id="challengesList">
+      <div class="empty-state" data-i18n="section.loading">Loading challenges...</div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    Auth.requireAuth();
+    I18n.initToggle('#langToggle');
+
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('s');
+
+    const sectionInfo = {
+      frontend: { titleKey: 'mode.frontend.name', descKey: 'section.frontendDesc' },
+      backend: { titleKey: 'mode.backend.name', descKey: 'section.backendDesc' },
+      cybersecurity: { titleKey: 'mode.cyber.name', descKey: 'section.cyberDesc' },
+      ehr: { titleKey: 'mode.ehr.name', descKey: 'section.ehrDesc' }
+    };
+
+    async function loadSection() {
+      try {
+        const user = await API.getMe();
+        Auth.setUser(user);
+        document.getElementById('userXp').textContent = user.xp;
+        document.getElementById('userCoins').textContent = user.coins;
+        document.getElementById('userLevel').textContent = user.level;
+
+        const info = sectionInfo[section];
+        if (info) {
+          const titleEl = document.getElementById('sectionTitle');
+          const descEl = document.getElementById('sectionDesc');
+          titleEl.setAttribute('data-i18n', info.titleKey);
+          descEl.setAttribute('data-i18n', info.descKey);
+          titleEl.textContent = I18n.t(info.titleKey);
+          descEl.textContent = I18n.t(info.descKey);
+        }
+
+        const challenges = await API.getChallenges(section);
+        renderChallenges(challenges);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderChallenges(challenges) {
+      const list = document.getElementById('challengesList');
+      if (challenges.length === 0) {
+        list.innerHTML = `<div class="empty-state">${I18n.t('section.empty')}</div>`;
+        return;
+      }
+
+      list.innerHTML = challenges.map(c => `
+        <div class="challenge-item ${c.completed ? 'completed' : ''}" onclick="openChallenge(${c.id})">
+          <div class="challenge-info">
+            <div class="challenge-title">
+              ${c.completed ? '<span class="check-mark">✓</span>' : ''}
+              ${c.title}
+            </div>
+            <div class="challenge-desc">${c.description}</div>
+          </div>
+          <div class="challenge-meta">
+            <span class="difficulty ${c.difficulty}">${c.difficulty}</span>
+            <span class="reward xp">+${c.xp_reward} XP</span>
+            <span class="reward coins">+${c.coins_reward}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openChallenge(id) {
+      window.location.href = `challenge.html?id=${id}`;
+    }
+
+    loadSection();
+  </script>
+</body>
+</html>

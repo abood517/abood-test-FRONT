@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@300;400;500;600&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    .dashboard-row { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
+    .mode-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 4px; }
+    .mode-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .mode-card:hover { transform: translateY(-4px); border-color: var(--neon); box-shadow: 0 0 24px rgba(177, 77, 255,0.15); }
+    .mode-card.locked { opacity: 0.6; cursor: not-allowed; }
+    .mode-card .glyph { font-size: 28px; color: var(--neon); margin-bottom: 10px; }
+    .mode-card.fe .glyph { color: #c080ff; }
+    .mode-card.be .glyph { color: var(--neon); }
+    .mode-card.sec .glyph { color: var(--success); }
+    .mode-card.ehr .glyph { color: #64b5f6; }
+    .mode-card h3 { font-family: var(--font-head); font-size: 14px; color: var(--text); letter-spacing: 2px; margin-bottom: 6px; }
+    .mode-card p { font-size: 12px; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
+    .mode-progress-track { height: 4px; background: rgba(20, 20, 29,0.6); border-radius: 4px; overflow: hidden; }
+    .mode-progress-fill { height: 100%; background: var(--neon); box-shadow: 0 0 6px var(--neon); transition: width 0.8s ease; }
+    .mode-meta { display: flex; justify-content: space-between; font-size: 10px; color: var(--text2); font-family: var(--font-mono); margin-top: 6px; }
+    .mode-tag { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 9px; letter-spacing: 1px; font-family: var(--font-head); background: rgba(255,255,255,0.05); color: var(--text2); margin-top: 8px; }
+    .mode-card.active-mode .mode-tag { background: rgba(0,255,170,0.1); color: var(--success); border: 1px solid rgba(0,255,170,0.3); }
+
+    .ai-sidebar-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 420px;
+    }
+    .ai-header { font-family: var(--font-head); font-size: 12px; color: var(--neon); letter-spacing: 2px; display: flex; align-items: center; gap: 8px; }
+    .ai-dot { width: 8px; height: 8px; background: var(--neon3); border-radius: 50%; animation: blink 1.5s ease-in-out infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .ai-msgs { flex: 1; display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+    .ai-msg { font-size: 12px; padding: 10px 12px; border-radius: 10px; line-height: 1.5; }
+    .ai-msg.bot { background: rgba(177, 77, 255,0.08); color: var(--text); border: 1px solid rgba(177, 77, 255,0.1); }
+    .ai-msg.user { background: rgba(138, 43, 226,0.2); color: var(--text); margin-left: 24px; }
+    html[dir="rtl"] .ai-msg.user { margin-left: 0; margin-right: 24px; }
+    .ai-input-row { display: flex; gap: 8px; margin-top: 4px; }
+    .ai-input { flex: 1; background: rgba(20, 20, 29,0.6); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-size: 12px; font-family: var(--font-body); outline: none; }
+    .ai-input:focus { border-color: var(--neon); }
+    .ai-send { background: var(--neon2); border: none; border-radius: 8px; padding: 8px 14px; color: #fff; cursor: pointer; font-size: 14px; }
+
+    .recent-activity { display: flex; flex-direction: column; gap: 8px; }
+    .activity-item { font-size: 12px; color: var(--text); padding: 10px 12px; background: rgba(177, 77, 255,0.04); border-radius: 8px; border-left: 2px solid var(--neon); }
+    html[dir="rtl"] .activity-item { border-left: none; border-right: 2px solid var(--neon); }
+    .activity-empty { font-size: 12px; color: var(--text2); padding: 20px; text-align: center; background: rgba(177, 77, 255,0.03); border-radius: 8px; }
+
+    @media (max-width: 900px) {
+      .dashboard-row { grid-template-columns: 1fr; }
+      .mode-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="page">
+  <!-- Profile -->
+  <div class="profile-card">
+    <div class="profile-avatar" id="profileAvatar">A</div>
+    <div class="profile-info">
+      <div class="profile-name" id="profileName">Player</div>
+      <div class="profile-meta" id="profileMeta">#AT-0000 · Member</div>
+      <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:0%"></div></div>
+      <div class="xp-label" id="xpLabel">0 / 100 XP</div>
+    </div>
+    <div class="level-badge" id="levelBadge">LEVEL 1</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="statChallenges">0</div><div class="stat-key" data-i18n="hub.challenges">CHALLENGES</div></div>
+    <div class="stat-card"><div class="stat-val" id="statXp">0</div><div class="stat-key" data-i18n="analytics.totalXp">TOTAL XP</div></div>
+    <div class="stat-card"><div class="stat-val" id="statCoins">0</div><div class="stat-key" data-i18n="hub.coins">COINS</div></div>
+    <div class="stat-card"><div class="stat-val" id="statAccuracy">0%</div><div class="stat-key" data-i18n="hub.accuracy">ACCURACY</div></div>
+  </div>
+
+  <!-- Dashboard row: modes + AI -->
+  <div class="dashboard-row" id="modes">
+    <div class="panel">
+      <div class="panel-title" data-i18n="hub.gameModes">GAME MODES</div>
+      <div class="mode-grid">
+        <div class="mode-card fe active-mode" onclick="window.location.href='section.html?s=frontend'">
+          <div class="glyph">◐</div>
+          <h3 data-i18n="mode.frontend.name">FRONTEND</h3>
+          <p data-i18n="mode.frontend.desc">HTML, CSS, and JavaScript challenges.</p>
+          <div class="mode-progress-track"><div class="mode-progress-fill" id="fe-progress" style="width:0%"></div></div>
+          <div class="mode-meta"><span id="fe-text">0 / 0</span><span class="mode-tag" data-i18n="mode.status.available">Available</span></div>
+        </div>
+        <div class="mode-card be active-mode" onclick="window.location.href='section.html?s=backend'">
+          <div class="glyph">⚙</div>
+          <h3 data-i18n="mode.backend.name">BACKEND</h3>
+          <p data-i18n="mode.backend.desc">Node.js, SQL, Python, Excel and algorithms.</p>
+          <div class="mode-progress-track"><div class="mode-progress-fill" id="backend-progress" style="width:0%"></div></div>
+          <div class="mode-meta"><span id="backend-text">0 / 0</span><span class="mode-tag" data-i18n="mode.status.available">Available</span></div>
+        </div>
+        <div class="mode-card sec active-mode" onclick="window.location.href='section.html?s=cybersecurity'">
+          <div class="glyph">⚷</div>
+          <h3 data-i18n="mode.cyber.name">CYBERSEC</h3>
+          <p data-i18n="mode.cyber.desc">Encoding, hashes, ciphers, and security concepts.</p>
+          <div class="mode-progress-track"><div class="mode-progress-fill" id="cybersecurity-progress" style="width:0%"></div></div>
+          <div class="mode-meta"><span id="cybersecurity-text">0 / 0</span><span class="mode-tag" data-i18n="mode.status.available">Available</span></div>
+        </div>
+        <div class="mode-card ehr active-mode" onclick="window.location.href='section.html?s=ehr'">
+          <div class="glyph">✚</div>
+          <h3 data-i18n="mode.ehr.name">EHR</h3>
+          <p data-i18n="mode.ehr.desc">Medical records, vitals, coding systems.</p>
+          <div class="mode-progress-track"><div class="mode-progress-fill" id="ehr-progress" style="width:0%"></div></div>
+          <div class="mode-meta"><span id="ehr-text">0 / 0</span><span class="mode-tag" data-i18n="mode.status.available">Available</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI sidebar -->
+    <div class="ai-sidebar-card">
+      <div class="ai-header"><div class="ai-dot"></div><span data-i18n="dashboard.assistant">AI ASSISTANT</span></div>
+      <div class="ai-msgs" id="aiMsgs">
+        <div class="ai-msg bot" data-i18n="ai.greeting">Hello! I'm your AI coding assistant.</div>
+      </div>
+      <div class="ai-input-row">
+        <input class="ai-input" id="aiInput" data-i18n-placeholder="ai.placeholder" placeholder="Ask anything…">
+        <button class="ai-send" id="aiSend">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="panel">
+    <div class="panel-title" data-i18n="dashboard.recentActivity">RECENT ACTIVITY</div>
+    <div class="recent-activity" id="recentActivity">
+      <div class="activity-empty" data-i18n="dashboard.noActivity">No activity yet — solve your first challenge!</div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+<script src="../js/app.js"></script>
+<script>
+  Auth.requireAuth();
+  Shell.mount({ active: 'hub', title: { text: 'DASHBOARD', i18n: 'dashboard.title' } });
+
+  async function loadDashboard() {
+    try {
+      const user = await API.getMe();
+      Auth.setUser(user);
+
+      // Profile
+      document.getElementById('profileAvatar').textContent = (user.username || 'A').charAt(0).toUpperCase();
+      document.getElementById('profileName').textContent = user.username;
+      document.getElementById('profileMeta').textContent = `#AT-${String(user.id).padStart(4, '0')} · ${user.email || ''}`;
+      document.getElementById('levelBadge').textContent = `LEVEL ${user.level}`;
+
+      // XP bar: 100 XP per level
+      const xpInLevel = user.xp % 100;
+      document.getElementById('xpBar').style.width = `${xpInLevel}%`;
+      document.getElementById('xpLabel').textContent = `${user.xp} XP · ${xpInLevel} / 100 to L${user.level + 1}`;
+
+      // Stats
+      document.getElementById('statXp').textContent = user.xp;
+      document.getElementById('statCoins').textContent = user.coins;
+
+      // Section progress
+      const progress = await API.getSectionsProgress();
+      let totalCompleted = 0, totalAttempts = 0, totalCorrect = 0;
+      Object.entries(progress).forEach(([section, p]) => {
+        if (p.total > 0) {
+          totalCompleted += p.completed;
+          const pct = (p.completed / p.total) * 100;
+          const progressEl = document.getElementById(`${section}-progress`);
+          const textEl = document.getElementById(`${section}-text`);
+          if (progressEl) progressEl.style.width = pct + '%';
+          if (textEl) textEl.textContent = `${p.completed} / ${p.total}`;
+        }
+      });
+      document.getElementById('statChallenges').textContent = totalCompleted;
+
+      // Accuracy + recent: analytics endpoint
+      try {
+        const analytics = await API.getAnalytics();
+        document.getElementById('statAccuracy').textContent = analytics.totals.accuracy + '%';
+
+        if (analytics.recent && analytics.recent.length) {
+          const html = analytics.recent.slice(0, 5).map(a =>
+            `<div class="activity-item">✓ ${a.title} · +${a.xp_reward} XP</div>`
+          ).join('');
+          document.getElementById('recentActivity').innerHTML = html;
+        }
+      } catch (e) {
+        document.getElementById('statAccuracy').textContent = '—';
+      }
+
+      I18n.apply();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // Simple AI chat — sends to backend if available, else canned response
+  async function sendAiMessage() {
+    const input = document.getElementById('aiInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    const msgs = document.getElementById('aiMsgs');
+    msgs.insertAdjacentHTML('beforeend', `<div class="ai-msg user">${escapeHtml(text)}</div>`);
+    const thinking = document.createElement('div');
+    thinking.className = 'ai-msg bot';
+    thinking.textContent = '...';
+    msgs.appendChild(thinking);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    try {
+      const reply = await API.aiAsk(text);
+      thinking.textContent = reply.answer;
+    } catch (e) {
+      thinking.textContent = "I'm a demo assistant — full AI coming soon. Try the challenges in the meantime!";
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  document.getElementById('aiSend').addEventListener('click', sendAiMessage);
+  document.getElementById('aiInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendAiMessage();
+  });
+
+  loadDashboard();
+</script>
+</body>
+</html>

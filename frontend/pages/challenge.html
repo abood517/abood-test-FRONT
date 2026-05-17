@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Challenge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&family=Orbitron:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+    html[dir="rtl"] * { font-family: 'Cairo', sans-serif; }
+    html[dir="rtl"] .brand, html[dir="rtl"] .challenge-title { font-family: 'Orbitron', 'Cairo', sans-serif; }
+    .code-editor { font-family: 'JetBrains Mono', monospace !important; }
+
+    .lang-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 20px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .lang-toggle:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+    .lang-toggle svg { width: 13px; height: 13px; }
+
+    :root {
+      --bg-black: #0a0a0f;
+      --bg-card: #14141d;
+      --bg-darker: #050508;
+      --accent-purple: #b14dff;
+      --accent-cyan: #ff4d8e;
+      --accent-green: #4dffaa;
+      --accent-pink: #ff4d8e;
+      --accent-amber: #ffaa4d;
+      --text-primary: #ffffff;
+      --text-secondary: #8b8ba0;
+      --text-muted: #5a5a6e;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    body { background: var(--bg-black); color: var(--text-primary); min-height: 100vh; }
+
+    body::before {
+      content: '';
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 1;
+    }
+
+    .top-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 24px 48px; border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+    }
+
+    .brand {
+      font-family: 'Orbitron', sans-serif; font-size: 22px;
+      font-weight: 700; letter-spacing: 4px; cursor: pointer;
+    }
+    .brand span { color: var(--accent-purple); }
+
+    .user-stats { display: flex; gap: 12px; align-items: center; }
+
+    .stat-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 20px; font-size: 13px;
+    }
+    .stat-pill .label { color: var(--text-muted); }
+    .stat-pill .value { color: var(--text-primary); font-weight: 600; }
+
+    .logout-btn {
+      padding: 8px 18px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 20px; cursor: pointer; font-size: 13px;
+    }
+
+    .main-container { max-width: 900px; margin: 0 auto; padding: 48px; position: relative; z-index: 2; }
+
+    .back-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-secondary); padding: 10px 18px;
+      border-radius: 20px; cursor: pointer; font-size: 13px;
+      margin-bottom: 32px; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .back-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
+
+    .challenge-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 36px;
+    }
+
+    .challenge-title {
+      font-family: 'Orbitron', sans-serif; font-size: 28px;
+      font-weight: 700; letter-spacing: 2px; margin-bottom: 12px;
+    }
+
+    .challenge-description {
+      color: var(--text-secondary); font-size: 16px;
+      line-height: 1.7; margin-bottom: 24px;
+    }
+
+    .instruction-box {
+      background: var(--bg-darker); border-left: 3px solid var(--accent-purple);
+      padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;
+      font-size: 14px; color: var(--text-secondary);
+    }
+
+    .instruction-box strong { color: var(--text-primary); }
+
+    .editor-label {
+      color: var(--text-muted); font-size: 12px;
+      letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 10px; display: block;
+    }
+
+    .code-editor {
+      background: #050508; border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px;
+      min-height: 220px; width: 100%;
+      color: #e6edf3; font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; line-height: 1.6; resize: vertical;
+      direction: ltr; text-align: left; outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .code-editor:focus { border-color: var(--accent-cyan); }
+
+    .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+    .btn-primary {
+      padding: 13px 28px;
+      background: var(--accent-purple);
+      color: white; border: none;
+      border-radius: 8px; cursor: pointer;
+      font-size: 14px; font-weight: 600;
+      letter-spacing: 1px; transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #a13ee8;
+      box-shadow: 0 0 20px rgba(177, 77, 255, 0.3);
+    }
+
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .btn-secondary {
+      padding: 13px 24px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 8px; cursor: pointer; font-size: 14px;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent-amber); color: var(--accent-amber); }
+
+    .result-box {
+      margin-top: 20px; padding: 16px 20px;
+      border-radius: 10px; display: none; font-size: 14px;
+    }
+
+    .result-box.success {
+      background: rgba(77, 255, 170, 0.08);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .result-box.error {
+      background: rgba(255, 77, 142, 0.08);
+      border: 1px solid var(--accent-pink);
+      color: var(--accent-pink);
+    }
+
+    .hint-box {
+      margin-top: 12px; padding: 12px 16px;
+      background: rgba(255, 170, 77, 0.08);
+      border: 1px solid var(--accent-amber);
+      border-radius: 8px; color: var(--accent-amber); font-size: 13px;
+      display: none;
+    }
+
+    .level-up-modal {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1000;
+    }
+
+    .level-up-content {
+      background: var(--bg-card);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 20px; padding: 48px;
+      text-align: center; animation: scaleIn 0.4s;
+      box-shadow: 0 0 60px rgba(255, 77, 142, 0.3);
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .level-up-content h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px; letter-spacing: 4px;
+      color: var(--accent-cyan); margin-bottom: 16px;
+    }
+
+    .level-up-content p {
+      color: var(--text-secondary); margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .top-nav { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+      .main-container { padding: 24px 20px; }
+      .challenge-card { padding: 24px; }
+      .challenge-title { font-size: 22px; }
+      .btn-group { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand" onclick="window.location.href='hub.html'">ABOOD<span> TEST</span></div>
+    <div class="user-stats">
+      <div class="stat-pill"><span class="label" data-i18n="hub.xp">XP</span><span class="value" id="userXp">0</span></div>
+      <div class="stat-pill"><span class="label" data-i18n="hub.coins">COINS</span><span class="value" id="userCoins">0</span></div>
+      <div class="stat-pill"><span class="label" data-i18n="hub.level">LVL</span><span class="value" id="userLevel">1</span></div>
+      <button class="lang-toggle" id="langToggle" title="Switch language">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span class="lang-toggle-label">AR</span>
+      </button>
+      <button class="logout-btn" onclick="Auth.logout()" data-i18n="nav.logout">Log out</button>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <button class="back-btn" id="backBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <span data-i18n="challenge.back">Back</span>
+    </button>
+
+    <div class="challenge-card" id="challengeCard">
+      <div style="text-align:center;color:var(--text-muted);padding:40px" data-i18n="challenge.loading">Loading challenge...</div>
+    </div>
+  </div>
+
+  <div class="level-up-modal" id="levelUpModal">
+    <div class="level-up-content">
+      <h2 data-i18n="challenge.levelUp">LEVEL UP!</h2>
+      <p data-i18n="challenge.newLevel">You reached a new level</p>
+      <button class="btn-primary" onclick="closeLevelUp()" data-i18n="challenge.continue">CONTINUE</button>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    Auth.requireAuth();
+    I18n.initToggle('#langToggle');
+
+    const params = new URLSearchParams(window.location.search);
+    const challengeId = params.get('id');
+    let currentChallenge = null;
+
+    async function loadChallenge() {
+      try {
+        const user = await API.getMe();
+        Auth.setUser(user);
+        updateNav(user);
+
+        currentChallenge = await API.getChallengeDetail(challengeId);
+        document.getElementById('backBtn').onclick = () => {
+          window.location.href = `section.html?s=${currentChallenge.section}`;
+        };
+        renderChallenge(currentChallenge);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function updateNav(user) {
+      document.getElementById('userXp').textContent = user.xp;
+      document.getElementById('userCoins').textContent = user.coins;
+      document.getElementById('userLevel').textContent = user.level;
+    }
+
+    function renderChallenge(c) {
+      const data = c.challenge_data;
+      const card = document.getElementById('challengeCard');
+      card.innerHTML = `
+        <div class="challenge-title">${c.title}</div>
+        <div class="challenge-description">${c.description}</div>
+
+        <div class="instruction-box">
+          <strong>${I18n.t('challenge.task')}</strong> ${data.instruction}
+        </div>
+
+        <span class="editor-label" data-i18n="challenge.editor">CODE EDITOR</span>
+        <textarea id="codeEditor" class="code-editor" spellcheck="false">${data.starter_code || ''}</textarea>
+
+        <div class="btn-group">
+          <button class="btn-primary" onclick="submitAnswer()" id="submitBtn" data-i18n="challenge.submit">SUBMIT</button>
+          <button class="btn-secondary" onclick="showHint()" data-i18n="challenge.hint">Show Hint</button>
+        </div>
+
+        <div id="hintBox" class="hint-box"></div>
+        <div id="resultBox" class="result-box"></div>
+      `;
+      I18n.apply();
+    }
+
+    async function submitAnswer() {
+      const answer = document.getElementById('codeEditor').value;
+      const btn = document.getElementById('submitBtn');
+      const resultBox = document.getElementById('resultBox');
+
+      btn.disabled = true;
+      btn.textContent = I18n.t('challenge.checking');
+      resultBox.style.display = 'none';
+
+      try {
+        const result = await API.submitChallenge(challengeId, answer);
+
+        if (result.correct) {
+          resultBox.className = 'result-box success';
+          let msg = result.message;
+          if (result.xp_gained) {
+            msg += `<br><br>+${result.xp_gained} XP &nbsp; · &nbsp; +${result.coins_gained} COINS`;
+          }
+          resultBox.innerHTML = msg;
+          resultBox.style.display = 'block';
+
+          if (result.user) {
+            Auth.setUser(result.user);
+            updateNav(result.user);
+          }
+
+          if (result.leveled_up) {
+            document.getElementById('levelUpModal').style.display = 'flex';
+          }
+
+          setTimeout(() => {
+            btn.textContent = I18n.t('challenge.completed');
+            btn.onclick = () => window.location.href = `section.html?s=${currentChallenge.section}`;
+            btn.disabled = false;
+          }, 1500);
+        } else {
+          resultBox.className = 'result-box error';
+          resultBox.innerHTML = result.message;
+          if (result.hint) {
+            resultBox.innerHTML += `<br><br><em>${I18n.t('challenge.hint')}: ${result.hint}</em>`;
+          }
+          resultBox.style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = I18n.t('challenge.submit');
+        }
+      } catch (err) {
+        resultBox.className = 'result-box error';
+        resultBox.textContent = err.message;
+        resultBox.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = I18n.t('challenge.submit');
+      }
+    }
+
+    function showHint() {
+      const data = currentChallenge.challenge_data;
+      const hintBox = document.getElementById('hintBox');
+      hintBox.textContent = data.hint || 'No hint available';
+      hintBox.style.display = 'block';
+    }
+
+    function closeLevelUp() {
+      document.getElementById('levelUpModal').style.display = 'none';
+    }
+
+    loadChallenge();
+  </script>
+</body>
+</html>

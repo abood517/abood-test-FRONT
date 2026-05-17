@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Achievements</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@300;400;500;600&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    .ach-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 8px; }
+    .ach-summary-card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+    .ach-summary-val { font-family: var(--font-head); font-size: 28px; color: var(--neon); margin-bottom: 4px; }
+    .ach-summary-label { font-size: 11px; color: var(--text2); letter-spacing: 2px; }
+    .ach-progress-track { height: 8px; background: rgba(20, 20, 29,0.6); border-radius: 4px; margin-top: 12px; overflow: hidden; }
+    .ach-progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon2), var(--neon3)); box-shadow: 0 0 10px var(--neon); transition: width 1s ease; }
+
+    .ach-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .ach-badge {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+      text-align: center;
+    }
+    .ach-badge.unlocked {
+      border-color: rgba(255, 77, 142, 0.4);
+      box-shadow: 0 0 30px rgba(255, 77, 142, 0.15);
+    }
+    .ach-badge.locked { opacity: 0.6; }
+    .ach-badge .icon {
+      font-size: 38px;
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(177, 77, 255, 0.06);
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .ach-badge.unlocked .icon {
+      background: linear-gradient(135deg, rgba(177, 77, 255,0.2), rgba(255, 77, 142,0.2));
+      border-color: var(--neon3);
+      color: var(--neon3);
+    }
+    .ach-badge.locked .icon { filter: grayscale(0.8); opacity: 0.6; }
+    .ach-name {
+      font-family: var(--font-head);
+      font-size: 12px;
+      color: var(--text);
+      letter-spacing: 2px;
+    }
+    .ach-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+    .ach-status {
+      margin-top: 6px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 9px;
+      letter-spacing: 2px;
+      font-family: var(--font-head);
+    }
+    .ach-badge.unlocked .ach-status { background: rgba(0,255,170,0.1); color: var(--success); border: 1px solid rgba(0,255,170,0.3); }
+    .ach-badge.locked .ach-status { background: rgba(255,255,255,0.05); color: var(--text2); border: 1px solid var(--border); }
+
+    html[dir="rtl"] .ach-name, html[dir="rtl"] .ach-status { letter-spacing: 0; }
+
+    @media (max-width: 900px) { .ach-grid { grid-template-columns: repeat(2, 1fr); } .ach-summary { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .ach-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div id="page">
+  <div class="ach-summary">
+    <div class="ach-summary-card">
+      <div class="ach-summary-val" id="achUnlocked">0</div>
+      <div class="ach-summary-label" data-i18n="ach.unlocked">UNLOCKED</div>
+    </div>
+    <div class="ach-summary-card">
+      <div class="ach-summary-val" id="achTotal">0</div>
+      <div class="ach-summary-label">TOTAL BADGES</div>
+    </div>
+    <div class="ach-summary-card">
+      <div class="ach-summary-val" id="achPercent">0%</div>
+      <div class="ach-summary-label" data-i18n="ach.progress">PROGRESS</div>
+      <div class="ach-progress-track"><div class="ach-progress-fill" id="achProgressBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title" data-i18n="shell.achievements">ACHIEVEMENTS</div>
+    <div class="ach-grid" id="achGrid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text2)" data-i18n="hub.loading">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+<script src="../js/app.js"></script>
+<script>
+  Auth.requireAuth();
+  Shell.mount({ active: 'achievements', title: { text: 'ACHIEVEMENTS', i18n: 'shell.achievements' } });
+
+  async function loadAchievements() {
+    try {
+      const data = await API.getAchievements();
+      document.getElementById('achUnlocked').textContent = data.unlocked;
+      document.getElementById('achTotal').textContent = data.total;
+      const pct = data.total > 0 ? Math.round((data.unlocked / data.total) * 100) : 0;
+      document.getElementById('achPercent').textContent = pct + '%';
+      setTimeout(() => {
+        document.getElementById('achProgressBar').style.width = pct + '%';
+      }, 100);
+
+      const grid = document.getElementById('achGrid');
+      grid.innerHTML = data.items.map(item => `
+        <div class="ach-badge ${item.unlocked ? 'unlocked' : 'locked'}">
+          <div class="icon">${item.icon}</div>
+          <div class="ach-name">${item.name}</div>
+          <div class="ach-desc">${item.description}</div>
+          <div class="ach-status">${item.unlocked ? I18n.t('ach.unlocked') : I18n.t('ach.locked')}</div>
+        </div>
+      `).join('');
+    } catch (err) {
+      document.getElementById('achGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--danger);padding:40px">${err.message}</div>`;
+    }
+  }
+
+  loadAchievements();
+</script>
+</body>
+</html>

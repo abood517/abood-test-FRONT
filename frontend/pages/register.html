@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    html[dir="rtl"] * { font-family: 'Cairo', sans-serif; }
+
+    :root {
+      --bg-black: #08080d;
+      --bg-card: #14141d;
+      --accent-purple: #b14dff;
+      --accent-pink: #ff4d8e;
+      --text-primary: #ffffff;
+      --text-secondary: #8b8ba0;
+      --text-muted: #5a5a6e;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(177, 77, 255, 0.3);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: var(--bg-black);
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+      color: var(--text-primary);
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 20%; left: 10%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(177, 77, 255, 0.18), transparent 60%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: 10%; right: 10%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(255, 77, 142, 0.15), transparent 60%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .grid-bg {
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .lang-toggle {
+      position: absolute;
+      top: 24px; right: 24px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 999px;
+      font-size: 12px;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .lang-toggle:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
+    .lang-toggle svg { width: 14px; height: 14px; }
+    html[dir="rtl"] .lang-toggle { right: auto; left: 24px; }
+
+    .brand-mark {
+      position: absolute;
+      top: 24px; left: 24px;
+      z-index: 10;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+    .brand-mark span { color: var(--accent-purple); text-shadow: 0 0 14px rgba(177, 77, 255, 0.6); }
+    html[dir="rtl"] .brand-mark { left: auto; right: 24px; }
+
+    .login-frame {
+      background: rgba(20, 20, 29, 0.95);
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      padding: 36px 40px 28px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow:
+        0 0 60px rgba(177, 77, 255, 0.15),
+        0 30px 80px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(20px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .avatar-container { display: flex; justify-content: center; margin-bottom: 22px; }
+
+    .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2d1060, #b14dff);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      box-shadow: 0 0 35px rgba(177, 77, 255, 0.4);
+      border: 2px solid rgba(177, 77, 255, 0.4);
+    }
+
+    .character { width: 100%; height: 100%; position: relative; }
+
+    .body-shape { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 78px; height: 50px; background: #ffffff; border-radius: 50% 50% 0 0; }
+    .head { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 64px; height: 64px; background: #ffffff; border-radius: 50%; }
+
+    .hair { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 60px; height: 26px; }
+    .hair-tuft { position: absolute; width: 12px; height: 17px; background: #ffffff; border-radius: 50%; transform-origin: bottom center; }
+    .hair-tuft:nth-child(1) { left: 4px; transform: rotate(-20deg); }
+    .hair-tuft:nth-child(2) { left: 15px; transform: rotate(-10deg); height: 20px; }
+    .hair-tuft:nth-child(3) { left: 25px; transform: rotate(0deg); height: 22px; }
+    .hair-tuft:nth-child(4) { left: 35px; transform: rotate(10deg); height: 20px; }
+    .hair-tuft:nth-child(5) { left: 46px; transform: rotate(20deg); }
+
+    .ear { position: absolute; width: 14px; height: 14px; background: #ffffff; border-radius: 50%; top: 21px; }
+    .ear.left { left: 18px; }
+    .ear.right { right: 18px; }
+
+    .eyes { position: absolute; top: 42px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; }
+    .eye { width: 7px; height: 7px; background: #2a2d3e; border-radius: 50%; transition: transform 0.15s ease, height 0.15s ease; }
+    .character.eyes-closed .eye { height: 1.5px; border-radius: 2px; transform: scaleY(0.3); }
+
+    .nose { position: absolute; top: 55px; left: 50%; transform: translateX(-50%); width: 7px; height: 5px; background: #2a2d3e; border-radius: 50%; }
+    .mouth { position: absolute; top: 62px; left: 50%; transform: translateX(-50%); width: 14px; height: 6px; border-bottom: 2px solid #2a2d3e; border-radius: 0 0 50% 50%; }
+
+    .cheek { position: absolute; top: 50px; width: 7px; height: 5px; background: rgba(255, 150, 150, 0.5); border-radius: 50%; }
+    .cheek.left { left: 21px; }
+    .cheek.right { right: 21px; }
+
+    .hand {
+      position: absolute;
+      width: 24px; height: 24px;
+      background: #ffffff;
+      border-radius: 50%;
+      top: 53px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 3;
+    }
+    .hand.left { left: 20px; }
+    .hand.right { right: 20px; }
+
+    .character.covering-eyes .hand { opacity: 1; top: 35px; }
+    .character.covering-eyes .eye { height: 1.5px; border-radius: 2px; transform: scaleY(0.3); }
+
+    .form-group { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 7px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    html[dir="rtl"] label { letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.03);
+      outline: none;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    html[dir="rtl"] input { font-family: 'Cairo', sans-serif; }
+
+    input::placeholder { color: var(--text-muted); font-size: 13px; }
+    input:focus {
+      border-color: var(--accent-purple);
+      background: rgba(177, 77, 255, 0.04);
+      box-shadow: 0 0 0 3px rgba(177, 77, 255, 0.12);
+    }
+
+    .password-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+
+    .show-password {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+      text-transform: none;
+      letter-spacing: 0;
+      margin-bottom: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .show-password input { width: 14px; height: 14px; cursor: pointer; accent-color: var(--accent-purple); }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #8a2be2, #b14dff);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 10px;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.2s;
+      box-shadow: 0 0 24px rgba(177, 77, 255, 0.3);
+    }
+    html[dir="rtl"] .login-btn { letter-spacing: 1px; }
+    .login-btn:hover { transform: translateY(-1px); box-shadow: 0 0 32px rgba(177, 77, 255, 0.5); }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .message { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; display: none; }
+    .message.error { background: rgba(255, 68, 102, 0.08); color: #ff7a8a; border: 1px solid rgba(255, 68, 102, 0.3); }
+    .message.success { background: rgba(77, 255, 170, 0.08); color: #4dffaa; border: 1px solid rgba(77, 255, 170, 0.3); }
+
+    .signup-link { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-secondary); }
+    .signup-link a { color: var(--accent-purple); font-weight: 600; text-decoration: none; transition: color 0.2s; }
+    .signup-link a:hover { color: var(--accent-pink); }
+
+    @media (max-width: 480px) {
+      .login-frame { padding: 28px 22px 24px; }
+      .brand-mark { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <a class="brand-mark" href="landing.html">ABOOD<span> TEST</span></a>
+
+  <button class="lang-toggle" id="langToggle" title="Switch language">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M2 12h20"></path>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+    </svg>
+    <span class="lang-toggle-label">AR</span>
+  </button>
+
+  <div class="login-frame">
+    <div class="avatar-container">
+      <div class="avatar">
+        <div class="character" id="character">
+          <div class="body-shape"></div>
+          <div class="head"></div>
+          <div class="hair">
+            <div class="hair-tuft"></div>
+            <div class="hair-tuft"></div>
+            <div class="hair-tuft"></div>
+            <div class="hair-tuft"></div>
+            <div class="hair-tuft"></div>
+          </div>
+          <div class="ear left"></div>
+          <div class="ear right"></div>
+          <div class="eyes">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+          </div>
+          <div class="cheek left"></div>
+          <div class="cheek right"></div>
+          <div class="nose"></div>
+          <div class="mouth"></div>
+          <div class="hand left"></div>
+          <div class="hand right"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="username" data-i18n="auth.username">Username</label>
+        <input type="text" id="username" placeholder="codingstella" required minlength="3">
+      </div>
+
+      <div class="form-group">
+        <label for="email" data-i18n="auth.email">Email</label>
+        <input type="email" id="email" placeholder="email@domain.com" required>
+      </div>
+
+      <div class="form-group">
+        <div class="password-row">
+          <label for="password" data-i18n="auth.password">Password</label>
+          <label class="show-password">
+            <input type="checkbox" id="showPassword">
+            <span data-i18n="auth.show">Show</span>
+          </label>
+        </div>
+        <input type="password" id="password" required minlength="6">
+      </div>
+
+      <button type="submit" class="login-btn" id="submitBtn" data-i18n="auth.signup">Sign up</button>
+    </form>
+
+    <div class="signup-link">
+      <span data-i18n="auth.hasAccount">Already have an account?</span> <a href="login.html" data-i18n="auth.loginHere">Log in</a>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    if (Auth.isLoggedIn()) {
+      window.location.href = 'hub.html';
+    }
+
+    I18n.initToggle('#langToggle');
+
+    const character = document.getElementById('character');
+    const passwordInput = document.getElementById('password');
+    const showPasswordCheckbox = document.getElementById('showPassword');
+
+    function blink() {
+      if (!character.classList.contains('covering-eyes')) {
+        character.classList.add('eyes-closed');
+        setTimeout(() => character.classList.remove('eyes-closed'), 150);
+      }
+      setTimeout(blink, 2000 + Math.random() * 3000);
+    }
+    setTimeout(blink, 2000);
+
+    function updateCover() {
+      const isHidden = passwordInput.type === 'password';
+      const isFocused = document.activeElement === passwordInput;
+      const hasValue = passwordInput.value.length > 0;
+
+      if (isHidden && (isFocused || hasValue)) {
+        character.classList.add('covering-eyes');
+      } else {
+        character.classList.remove('covering-eyes');
+      }
+    }
+
+    passwordInput.addEventListener('focus', updateCover);
+    passwordInput.addEventListener('blur', updateCover);
+    passwordInput.addEventListener('input', updateCover);
+
+    showPasswordCheckbox.addEventListener('change', () => {
+      passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
+      updateCover();
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = passwordInput.value;
+      const btn = document.getElementById('submitBtn');
+
+      btn.disabled = true;
+      btn.textContent = I18n.t('auth.creating');
+
+      try {
+        const data = await API.register(username, email, password);
+        Auth.setToken(data.token);
+        Auth.setUser(data.user);
+        showMessage('message', I18n.t('auth.signupSuccess'), 'success');
+        setTimeout(() => { window.location.href = 'hub.html'; }, 600);
+      } catch (err) {
+        showMessage('message', err.message);
+        btn.disabled = false;
+        btn.textContent = I18n.t('auth.signup');
+      }
+    });
+  </script>
+</body>
+</html>

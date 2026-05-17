@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Loading</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Cairo:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    html[dir="rtl"] .status-text,
+    html[dir="rtl"] .brand-name {
+      font-family: 'Cairo', sans-serif;
+      letter-spacing: 2px;
+    }
+
+    :root {
+      --bg-dark: #08080d;
+      --accent-cyan: #b14dff;
+      --accent-blue: #ff4d8e;
+      --text-glow: #d780ff;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: var(--bg-dark);
+      overflow: hidden;
+      flex-direction: column;
+      background-image: radial-gradient(circle at center, #111 0%, #000 100%);
+    }
+
+    /* Background grid texture */
+    .grid-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(177, 77, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(177, 77, 255, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .loader-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      z-index: 10;
+    }
+
+    .progress-ring {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .progress-ring__track {
+      fill: transparent;
+      stroke: rgba(177, 77, 255, 0.1);
+      stroke-width: 4;
+    }
+
+    .progress-ring__progress {
+      fill: transparent;
+      stroke: url(#cyanGradient);
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 0 1000;
+      transition: stroke-dasharray 0.1s linear;
+      filter: drop-shadow(0 0 8px rgba(177, 77, 255, 0.8));
+    }
+
+    .progress-ring__inner {
+      fill: transparent;
+      stroke: rgba(177, 77, 255, 0.15);
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+    }
+
+    .progress-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: var(--accent-cyan);
+    }
+
+    .percentage {
+      font-size: 56px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 20px var(--text-glow), 0 0 40px var(--accent-cyan);
+      letter-spacing: 2px;
+    }
+
+    .status-text {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent-cyan);
+      letter-spacing: 4px;
+      margin-top: 8px;
+      opacity: 0.9;
+      text-shadow: 0 0 10px var(--accent-cyan);
+    }
+
+    .tick-marks {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .tick {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 8px;
+      background: rgba(177, 77, 255, 0.4);
+      transform-origin: 1px 130px;
+    }
+
+    .brand-name {
+      margin-top: 40px;
+      color: var(--accent-cyan);
+      font-size: 14px;
+      letter-spacing: 6px;
+      font-weight: 500;
+      opacity: 0.6;
+      z-index: 10;
+      text-shadow: 0 0 10px var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+
+  <div class="loader-container">
+    <svg class="progress-ring" viewBox="0 0 280 280">
+      <defs>
+        <linearGradient id="cyanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#b14dff" />
+          <stop offset="100%" stop-color="#ff4d8e" />
+        </linearGradient>
+      </defs>
+      <circle class="progress-ring__track" cx="140" cy="140" r="120"/>
+      <circle class="progress-ring__inner" cx="140" cy="140" r="105"/>
+      <circle class="progress-ring__progress" id="progressCircle" cx="140" cy="140" r="120"/>
+    </svg>
+
+    <div class="tick-marks" id="tickMarks"></div>
+
+    <div class="progress-content">
+      <div class="percentage" id="percentage">0%</div>
+      <div class="status-text" id="statusText">INITIALIZING</div>
+    </div>
+  </div>
+
+  <div class="brand-name">ABOOD TEST</div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    // Generate tick marks around the circle
+    const tickMarks = document.getElementById('tickMarks');
+    for (let i = 0; i < 60; i++) {
+      const tick = document.createElement('div');
+      tick.className = 'tick';
+      tick.style.transform = `rotate(${i * 6}deg) translateY(-130px)`;
+      if (i % 5 === 0) {
+        tick.style.height = '12px';
+        tick.style.background = 'rgba(177, 77, 255, 0.6)';
+      }
+      tickMarks.appendChild(tick);
+    }
+
+    // Animate progress
+    const progressCircle = document.getElementById('progressCircle');
+    const percentageEl = document.getElementById('percentage');
+    const statusEl = document.getElementById('statusText');
+    const radius = 120;
+    const circumference = 2 * Math.PI * radius;
+
+    let progress = 0;
+    const statuses = [
+      { at: 0, key: 'loading.initializing' },
+      { at: 25, key: 'loading.assets' },
+      { at: 50, key: 'loading.connecting' },
+      { at: 75, key: 'loading.optimizing' },
+      { at: 95, key: 'loading.almost' }
+    ];
+
+    const interval = setInterval(() => {
+      progress += 1;
+      if (progress > 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          window.location.href = 'landing.html';
+        }, 500);
+        return;
+      }
+
+      const dashOffset = (progress / 100) * circumference;
+      progressCircle.style.strokeDasharray = `${dashOffset} ${circumference}`;
+      percentageEl.textContent = progress + '%';
+
+      for (let i = statuses.length - 1; i >= 0; i--) {
+        if (progress >= statuses[i].at) {
+          statusEl.textContent = I18n.t(statuses[i].key);
+          break;
+        }
+      }
+    }, 30);
+  </script>
+</body>
+</html>

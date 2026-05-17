@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Code. Play. Level Up.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;500;600;700;800;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    html[dir="rtl"] * {
+      font-family: 'Cairo', sans-serif;
+    }
+
+    html[dir="rtl"] .brand,
+    html[dir="rtl"] .mode-name,
+    html[dir="rtl"] .feature-num {
+      font-family: 'Orbitron', 'Cairo', sans-serif;
+    }
+
+    :root {
+      --bg-black: #08080d;
+      --bg-darker: #050507;
+      --bg-card: #14141d;
+      --accent-purple: #b14dff;
+      --accent-pink: #ff4d8e;
+      --accent-cyan: #4dd4ff;
+      --accent-green: #4dffaa;
+      --accent-amber: #ffaa4d;
+      --text-primary: #ffffff;
+      --text-secondary: #8b8ba0;
+      --text-muted: #5a5a6e;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    html, body {
+      background: var(--bg-black);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ==================== Top navigation ==================== */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 56px;
+      background: rgba(8, 8, 13, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      gap: 24px;
+    }
+
+    .brand {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    .brand span {
+      color: var(--accent-purple);
+      text-shadow: 0 0 18px rgba(177, 77, 255, 0.6);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+
+    html[dir="rtl"] .nav-link { letter-spacing: 0; text-transform: none; font-size: 14px; }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lang-toggle:hover {
+      border-color: var(--accent-purple);
+      color: var(--text-primary);
+    }
+
+    .lang-toggle svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .signin-btn {
+      padding: 11px 28px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: var(--text-primary);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    html[dir="rtl"] .signin-btn,
+    html[dir="rtl"] .cta-primary,
+    html[dir="rtl"] .cta-secondary,
+    html[dir="rtl"] .lang-toggle { letter-spacing: 0; text-transform: none; font-size: 14px; }
+
+    .signin-btn:hover {
+      background: var(--text-primary);
+      color: var(--bg-black);
+      border-color: var(--text-primary);
+    }
+
+    /* ==================== Hero ==================== */
+    .hero {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 56px 120px;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 60px;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      right: 5%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(177, 77, 255, 0.25) 0%, transparent 60%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 77, 142, 0.2) 0%, transparent 60%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    html[dir="rtl"] .hero-tag { letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+    .hero-tag .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-purple);
+      box-shadow: 0 0 8px var(--accent-purple);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero-title {
+      font-size: 84px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+      margin-bottom: 28px;
+      color: var(--text-primary);
+    }
+
+    html[dir="rtl"] .hero-title { letter-spacing: 0; font-size: 72px; }
+
+    .hero-title .accent {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      color: var(--text-secondary);
+      font-size: 16px;
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 520px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-primary {
+      padding: 14px 32px;
+      background: var(--bg-darker);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cta-primary:hover {
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 24px rgba(177, 77, 255, 0.4);
+    }
+
+    .cta-secondary {
+      padding: 14px 32px;
+      background: var(--text-primary);
+      border: 1px solid var(--text-primary);
+      color: var(--bg-black);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cta-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(255, 255, 255, 0.15);
+    }
+
+    html[dir="rtl"] .cta-primary svg { transform: rotate(180deg); }
+
+    /* ==================== Robot ==================== */
+    .robot-stage {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .robot-platform {
+      position: absolute;
+      bottom: 40px;
+      width: 360px;
+      height: 80px;
+      background: radial-gradient(ellipse, rgba(255, 77, 142, 0.4) 0%, transparent 70%);
+      filter: blur(20px);
+    }
+
+    .robot {
+      position: relative;
+      width: 220px;
+      height: 360px;
+      animation: float 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 30px rgba(177, 77, 255, 0.4));
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .robot-head {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 130px; height: 110px;
+      background: linear-gradient(160deg, #2a2a3a 0%, #181820 100%);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.05), 0 0 40px rgba(177, 77, 255, 0.3);
+    }
+
+    .robot-eyes {
+      position: absolute;
+      top: 38px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; gap: 22px;
+    }
+
+    .robot-eye {
+      width: 16px; height: 16px;
+      background: var(--accent-purple);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent-purple), 0 0 24px var(--accent-purple), inset 0 0 4px rgba(255, 255, 255, 0.6);
+      animation: blink 4s infinite;
+    }
+
+    @keyframes blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      94%, 98% { transform: scaleY(0.1); }
+    }
+
+    .robot-antenna {
+      position: absolute;
+      top: -18px; left: 50%;
+      transform: translateX(-50%);
+      width: 3px; height: 18px;
+      background: linear-gradient(to bottom, var(--accent-pink), #2a2a3a);
+    }
+
+    .robot-antenna::before {
+      content: '';
+      position: absolute;
+      top: -6px; left: 50%;
+      transform: translateX(-50%);
+      width: 10px; height: 10px;
+      background: var(--accent-pink);
+      border-radius: 50%;
+      box-shadow: 0 0 16px var(--accent-pink);
+      animation: pulse 1.5s infinite;
+    }
+
+    .robot-ear {
+      position: absolute;
+      top: 35px; width: 8px; height: 24px;
+      background: linear-gradient(to right, #181820, #2a2a3a);
+      border-radius: 4px;
+    }
+
+    .robot-ear.left { left: -8px; }
+    .robot-ear.right { right: -8px; }
+
+    .robot-neck {
+      position: absolute;
+      top: 105px; left: 50%;
+      transform: translateX(-50%);
+      width: 30px; height: 14px;
+      background: #1a1a24;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .robot-body {
+      position: absolute;
+      top: 118px; left: 50%;
+      transform: translateX(-50%);
+      width: 170px; height: 160px;
+      background: linear-gradient(170deg, #2a2a3a 0%, #14141c 100%);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.04), 0 0 50px rgba(255, 77, 142, 0.25);
+    }
+
+    .robot-chest {
+      position: absolute;
+      top: 30px; left: 50%;
+      transform: translateX(-50%);
+      width: 70px; height: 70px;
+      background: radial-gradient(circle, rgba(177, 77, 255, 0.4) 0%, rgba(177, 77, 255, 0.1) 70%, transparent 100%);
+      border: 1px solid rgba(177, 77, 255, 0.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .robot-chest::before {
+      content: '';
+      width: 30px; height: 30px;
+      background: var(--accent-purple);
+      border-radius: 50%;
+      box-shadow: 0 0 16px var(--accent-purple), 0 0 32px var(--accent-purple);
+      animation: pulse 2s infinite;
+    }
+
+    .robot-arm {
+      position: absolute;
+      top: 130px; width: 22px; height: 80px;
+      background: linear-gradient(to bottom, #2a2a3a, #181820);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .robot-arm.left { left: 14px; transform: rotate(-8deg); }
+    .robot-arm.right { right: 14px; transform: rotate(8deg); }
+
+    .robot-leg {
+      position: absolute;
+      top: 280px; width: 30px; height: 60px;
+      background: linear-gradient(to bottom, #2a2a3a, #14141c);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .robot-leg.left { left: 70px; }
+    .robot-leg.right { right: 70px; }
+
+    .robot-base {
+      position: absolute;
+      top: 335px; left: 50%;
+      transform: translateX(-50%);
+      width: 200px; height: 28px;
+      background: linear-gradient(180deg, rgba(177, 77, 255, 0.6), rgba(255, 77, 142, 0.6));
+      border-radius: 50%;
+      filter: blur(2px);
+      box-shadow: 0 0 40px rgba(177, 77, 255, 0.5);
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: var(--accent-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-cyan);
+      animation: sparkle-float 6s infinite ease-in-out;
+    }
+
+    .sparkle:nth-child(1) { top: 60px; right: 30px; animation-delay: 0s; }
+    .sparkle:nth-child(2) { top: 180px; left: 20px; animation-delay: 1.5s; background: var(--accent-pink); box-shadow: 0 0 8px var(--accent-pink); }
+    .sparkle:nth-child(3) { top: 300px; right: 40px; animation-delay: 3s; background: var(--accent-purple); box-shadow: 0 0 8px var(--accent-purple); }
+    .sparkle:nth-child(4) { top: 100px; left: 60px; animation-delay: 4.5s; }
+
+    @keyframes sparkle-float {
+      0%, 100% { transform: translateY(0); opacity: 0.3; }
+      50% { transform: translateY(-20px); opacity: 1; }
+    }
+
+    /* ==================== Shared section styling ==================== */
+    .section-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 90px 56px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .section-eyebrow {
+      font-size: 12px;
+      letter-spacing: 4px;
+      color: var(--accent-purple);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    html[dir="rtl"] .section-eyebrow { letter-spacing: 2px; text-transform: none; font-size: 14px; }
+
+    .section-title {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    html[dir="rtl"] .section-title { letter-spacing: 0; font-size: 40px; }
+
+    .section-subtitle {
+      color: var(--text-secondary);
+      font-size: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ==================== Modes grid ==================== */
+    .modes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .mode-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -30%;
+      width: 200px; height: 200px;
+      background: var(--card-glow);
+      filter: blur(60px);
+      opacity: 0.4;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .mode-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--card-border);
+    }
+
+    .mode-card:hover::before { opacity: 0.7; }
+
+    .mode-card.frontend { --card-glow: radial-gradient(circle, var(--accent-purple), transparent); --card-border: var(--accent-purple); }
+    .mode-card.backend { --card-glow: radial-gradient(circle, var(--accent-cyan), transparent); --card-border: var(--accent-cyan); }
+    .mode-card.cybersecurity { --card-glow: radial-gradient(circle, var(--accent-green), transparent); --card-border: var(--accent-green); }
+    .mode-card.ehr { --card-glow: radial-gradient(circle, var(--accent-pink), transparent); --card-border: var(--accent-pink); }
+
+    .mode-icon {
+      width: 56px; height: 56px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      position: relative; z-index: 2;
+    }
+
+    .mode-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px; font-weight: 700; letter-spacing: 2px;
+      margin-bottom: 8px;
+      position: relative; z-index: 2;
+    }
+
+    html[dir="rtl"] .mode-name { letter-spacing: 0; }
+
+    .mode-desc {
+      color: var(--text-secondary);
+      font-size: 13px; line-height: 1.6;
+      position: relative; z-index: 2;
+      flex: 1;
+    }
+
+    .mode-tag {
+      margin-top: 18px;
+      font-size: 11px; letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      position: relative; z-index: 2;
+    }
+
+    .mode-tag.active { color: var(--accent-green); }
+
+    html[dir="rtl"] .mode-tag { letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+    /* ==================== How It Works ==================== */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 28px;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .step-card:hover {
+      border-color: var(--accent-purple);
+      transform: translateY(-4px);
+    }
+
+    .step-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--accent-purple);
+      margin-bottom: 18px;
+    }
+
+    .step-icon {
+      width: 56px; height: 56px;
+      background: rgba(177, 77, 255, 0.08);
+      border: 1px solid rgba(177, 77, 255, 0.3);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent-purple);
+      margin-bottom: 20px;
+    }
+
+    .step-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step-desc {
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ==================== Achievements ==================== */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .achievement {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      transition: all 0.3s;
+    }
+
+    .achievement:hover {
+      border-color: var(--ach-color, var(--accent-purple));
+      transform: translateY(-3px);
+    }
+
+    .achievement-badge {
+      width: 60px; height: 60px;
+      min-width: 60px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--ach-color, var(--accent-purple)), color-mix(in srgb, var(--ach-color, var(--accent-purple)) 60%, transparent));
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 0 20px color-mix(in srgb, var(--ach-color, var(--accent-purple)) 40%, transparent);
+    }
+
+    .achievement-text { flex: 1; min-width: 0; }
+
+    .achievement-name {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .achievement-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .achievement.gold { --ach-color: var(--accent-amber); }
+    .achievement.green { --ach-color: var(--accent-green); }
+    .achievement.cyan { --ach-color: var(--accent-cyan); }
+    .achievement.pink { --ach-color: var(--accent-pink); }
+    .achievement.purple { --ach-color: var(--accent-purple); }
+
+    /* ==================== Features strip ==================== */
+    .features-strip {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 56px 80px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .feature {
+      text-align: center;
+      padding: 30px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      transition: all 0.3s;
+    }
+
+    .feature:hover {
+      border-color: var(--accent-purple);
+      transform: translateY(-4px);
+    }
+
+    .feature-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 48px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+
+    .feature-label {
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    html[dir="rtl"] .feature-label { letter-spacing: 0; text-transform: none; font-size: 14px; }
+
+    /* ==================== FAQ ==================== */
+    .faq-list {
+      max-width: 820px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .faq-item:hover { border-color: rgba(177, 77, 255, 0.4); }
+
+    .faq-q {
+      padding: 22px 26px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .faq-toggle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(177, 77, 255, 0.1);
+      border: 1px solid rgba(177, 77, 255, 0.3);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent-purple);
+      transition: transform 0.3s;
+      flex-shrink: 0;
+    }
+
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+      padding: 0 26px;
+    }
+
+    .faq-a-inner {
+      padding-bottom: 22px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .faq-item.open .faq-a {
+      max-height: 220px;
+    }
+
+    /* ==================== CTA section ==================== */
+    .cta-section {
+      max-width: 1100px;
+      margin: 0 auto 90px;
+      padding: 60px 40px;
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(177, 77, 255, 0.12), rgba(255, 77, 142, 0.12));
+      border: 1px solid rgba(177, 77, 255, 0.25);
+      border-radius: 28px;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -10%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(177, 77, 255, 0.3), transparent 60%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .cta-section::after {
+      content: '';
+      position: absolute;
+      bottom: -50%; right: -10%;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255, 77, 142, 0.3), transparent 60%);
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .cta-content { position: relative; z-index: 2; }
+
+    .cta-title {
+      font-size: 42px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .cta-desc {
+      color: var(--text-secondary);
+      font-size: 16px;
+      margin-bottom: 30px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 38px;
+      background: var(--text-primary);
+      color: var(--bg-black);
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.25s;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+    }
+
+    html[dir="rtl"] .cta-button { letter-spacing: 0; text-transform: none; }
+
+    /* ==================== Footer ==================== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 50px 56px 30px;
+      position: relative;
+      z-index: 2;
+      background: var(--bg-darker);
+    }
+
+    .footer-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 30px;
+    }
+
+    .footer-brand .brand { font-size: 22px; margin-bottom: 14px; display: inline-block; }
+    .footer-tagline { color: var(--text-secondary); font-size: 14px; max-width: 280px; line-height: 1.6; }
+
+    .footer-col h4 {
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    html[dir="rtl"] .footer-col h4 { letter-spacing: 0; text-transform: none; font-size: 14px; }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-col a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover { color: var(--text-primary); }
+
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ==================== Responsive ==================== */
+    @media (max-width: 1000px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 60px 24px 80px;
+      }
+      .hero-tag, .hero-ctas { justify-content: center; }
+      .hero-ctas { display: inline-flex; }
+      .hero-title { font-size: 56px; }
+      .hero-desc { margin: 0 auto 36px; }
+      .robot-stage { height: 420px; }
+      .modes-grid, .steps-grid, .achievements-grid { grid-template-columns: repeat(2, 1fr); }
+      .top-nav { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
+      .nav-links { display: none; }
+      .section-wrap, .features-strip { padding: 60px 20px; }
+      .section-title, .cta-title { font-size: 32px; }
+      .features-strip { grid-template-columns: 1fr; gap: 20px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+      footer { padding: 40px 20px 24px; }
+    }
+
+    @media (max-width: 600px) {
+      .hero-title { font-size: 44px; }
+      .modes-grid, .steps-grid, .achievements-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .cta-section { padding: 40px 24px; margin: 0 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand" onclick="window.location.href='landing.html'">ABOOD<span data-i18n="brand.suffix"> TEST</span></div>
+    <div class="nav-links">
+      <a class="nav-link" href="#modes" data-i18n="nav.modes">Modes</a>
+      <a class="nav-link" href="#how" data-i18n="nav.howItWorks">How It Works</a>
+      <a class="nav-link" href="#features" data-i18n="nav.features">Features</a>
+      <a class="nav-link" href="#faq" data-i18n="nav.faq">FAQ</a>
+      <a class="nav-link" href="demo.html">Demo</a>
+    </div>
+    <div class="nav-actions">
+      <button class="lang-toggle" id="langToggle" title="Switch language">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M2 12h20"></path>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span class="lang-toggle-label">AR</span>
+      </button>
+      <a class="signin-btn" href="login.html" data-i18n="nav.signIn">Sign in</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-tag">
+        <span class="dot"></span>
+        <span data-i18n="hero.tag">For Developers</span>
+      </div>
+      <h1 class="hero-title">
+        <span data-i18n="hero.titleLine1">CODE. PLAY.</span><br>
+        <span class="accent" data-i18n="hero.titleLine2">LEVEL UP.</span>
+      </h1>
+      <p class="hero-desc" data-i18n="hero.desc">
+        The fastest way to learn frontend, backend, cybersecurity, and EHR systems. Solve real challenges, earn XP and coins, climb the leaderboard.
+      </p>
+      <div class="hero-ctas">
+        <a class="cta-primary" href="register.html">
+          <span data-i18n="hero.cta.start">Start playing</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </a>
+        <a class="cta-secondary" href="demo.html">Watch Demo</a>
+      </div>
+    </div>
+
+    <div class="robot-stage">
+      <div class="robot-platform"></div>
+      <span class="sparkle"></span>
+      <span class="sparkle"></span>
+      <span class="sparkle"></span>
+      <span class="sparkle"></span>
+      <div class="robot">
+        <div class="robot-antenna"></div>
+        <div class="robot-head">
+          <div class="robot-ear left"></div>
+          <div class="robot-ear right"></div>
+          <div class="robot-eyes">
+            <div class="robot-eye"></div>
+            <div class="robot-eye"></div>
+          </div>
+        </div>
+        <div class="robot-neck"></div>
+        <div class="robot-body">
+          <div class="robot-chest"></div>
+        </div>
+        <div class="robot-arm left"></div>
+        <div class="robot-arm right"></div>
+        <div class="robot-leg left"></div>
+        <div class="robot-leg right"></div>
+        <div class="robot-base"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-wrap" id="modes">
+    <div class="section-heading">
+      <div class="section-eyebrow" data-i18n="modes.eyebrow">Game Modes</div>
+      <h2 class="section-title" data-i18n="modes.title">Pick your battle</h2>
+      <p class="section-subtitle" data-i18n="modes.subtitle">Four tracks designed to take you from beginner to pro.</p>
+    </div>
+
+    <div class="modes-grid">
+      <div class="mode-card frontend">
+        <div class="mode-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        </div>
+        <div class="mode-name" data-i18n="mode.frontend.name">FRONTEND</div>
+        <div class="mode-desc" data-i18n="mode.frontend.desc">HTML, CSS, and JavaScript challenges.</div>
+        <div class="mode-tag active" data-i18n="mode.status.available">Available now</div>
+      </div>
+
+      <div class="mode-card backend">
+        <div class="mode-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"></path><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"></path></svg>
+        </div>
+        <div class="mode-name" data-i18n="mode.backend.name">BACKEND</div>
+        <div class="mode-desc" data-i18n="mode.backend.desc">APIs, logic, and algorithm puzzles.</div>
+        <div class="mode-tag" data-i18n="mode.status.soon">Coming soon</div>
+      </div>
+
+      <div class="mode-card cybersecurity">
+        <div class="mode-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <div class="mode-name" data-i18n="mode.cyber.name">CYBERSEC</div>
+        <div class="mode-desc" data-i18n="mode.cyber.desc">Encryption challenges and hacking puzzles.</div>
+        <div class="mode-tag" data-i18n="mode.status.soon">Coming soon</div>
+      </div>
+
+      <div class="mode-card ehr">
+        <div class="mode-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>
+        </div>
+        <div class="mode-name" data-i18n="mode.ehr.name">EHR</div>
+        <div class="mode-desc" data-i18n="mode.ehr.desc">Electronic Health Records and medical case simulations.</div>
+        <div class="mode-tag" data-i18n="mode.status.soon">Coming soon</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-wrap" id="how">
+    <div class="section-heading">
+      <div class="section-eyebrow" data-i18n="how.eyebrow">How It Works</div>
+      <h2 class="section-title" data-i18n="how.title">Level up in three steps</h2>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="step-title" data-i18n="how.step1.title">Pick a track</div>
+        <div class="step-desc" data-i18n="how.step1.desc">Choose frontend, backend, security or EHR.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div class="step-title" data-i18n="how.step2.title">Solve challenges</div>
+        <div class="step-desc" data-i18n="how.step2.desc">Write real code in the in-browser editor.</div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <div class="step-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        </div>
+        <div class="step-title" data-i18n="how.step3.title">Earn rewards</div>
+        <div class="step-desc" data-i18n="how.step3.desc">Win XP and coins for every solved challenge.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-wrap" id="achievements">
+    <div class="section-heading">
+      <div class="section-eyebrow" data-i18n="ach.eyebrow">Achievements</div>
+      <h2 class="section-title" data-i18n="ach.title">Unlock badges as you grow</h2>
+      <p class="section-subtitle" data-i18n="ach.subtitle">Every milestone is rewarded.</p>
+    </div>
+
+    <div class="achievements-grid">
+      <div class="achievement gold">
+        <div class="achievement-badge">★</div>
+        <div class="achievement-text">
+          <div class="achievement-name" data-i18n="ach.firstStep.name">First Step</div>
+          <div class="achievement-desc" data-i18n="ach.firstStep.desc">Solve your first challenge</div>
+        </div>
+      </div>
+      <div class="achievement green">
+        <div class="achievement-badge">⚡</div>
+        <div class="achievement-text">
+          <div class="achievement-name" data-i18n="ach.streak.name">Streak Master</div>
+          <div class="achievement-desc" data-i18n="ach.streak.desc">Code 7 days in a row</div>
+        </div>
+      </div>
+      <div class="achievement cyan">
+        <div class="achievement-badge">⚡</div>
+        <div class="achievement-text">
+          <div class="achievement-name" data-i18n="ach.speed.name">Speed Runner</div>
+          <div class="achievement-desc" data-i18n="ach.speed.desc">Finish a track in record time</div>
+        </div>
+      </div>
+      <div class="achievement pink">
+        <div class="achievement-badge">✦</div>
+        <div class="achievement-text">
+          <div class="achievement-name" data-i18n="ach.flawless.name">Flawless</div>
+          <div class="achievement-desc" data-i18n="ach.flawless.desc">Solve 10 challenges first try</div>
+        </div>
+      </div>
+      <div class="achievement purple">
+        <div class="achievement-badge">◈</div>
+        <div class="achievement-text">
+          <div class="achievement-name" data-i18n="ach.scholar.name">Scholar</div>
+          <div class="achievement-desc" data-i18n="ach.scholar.desc">Reach level 10</div>
+        </div>
+      </div>
+      <div class="achievement gold">
+        <div class="achievement-badge">♛</div>
+        <div class="achievement-text">
+          <div class="achievement-name" data-i18n="ach.legend.name">Legend</div>
+          <div class="achievement-desc" data-i18n="ach.legend.desc">Reach top 10 on leaderboard</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features-strip" id="features">
+    <div class="feature">
+      <div class="feature-num">100+</div>
+      <div class="feature-label" data-i18n="features.challenges">Challenges Planned</div>
+    </div>
+    <div class="feature">
+      <div class="feature-num">4</div>
+      <div class="feature-label" data-i18n="features.tracks">Skill Tracks</div>
+    </div>
+    <div class="feature">
+      <div class="feature-num">XP</div>
+      <div class="feature-label" data-i18n="features.progress">Real Progress System</div>
+    </div>
+  </section>
+
+  <section class="section-wrap" id="faq">
+    <div class="section-heading">
+      <div class="section-eyebrow" data-i18n="faq.eyebrow">FAQ</div>
+      <h2 class="section-title" data-i18n="faq.title">Things people ask</h2>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">
+          <span data-i18n="faq.q1">Do I need experience to start?</span>
+          <span class="faq-toggle">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a1">Not at all.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <span data-i18n="faq.q2">How does the XP system work?</span>
+          <span class="faq-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a2">Each challenge awards XP.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <span data-i18n="faq.q3">Is this free?</span>
+          <span class="faq-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a3">Yes, fully free.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <span data-i18n="faq.q4">Can I reset my progress?</span>
+          <span class="faq-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a4">Not yet — on the roadmap.</div></div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q">
+          <span data-i18n="faq.q5">What languages does the site support?</span>
+          <span class="faq-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+        </div>
+        <div class="faq-a"><div class="faq-a-inner" data-i18n="faq.a5">English and Arabic.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2 class="cta-title" data-i18n="cta.title">Ready to start?</h2>
+      <p class="cta-desc" data-i18n="cta.desc">Create your account in 30 seconds. No credit card. No spam.</p>
+      <a class="cta-button" href="register.html">
+        <span data-i18n="cta.button">Create my account</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <footer id="about">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand">ABOOD<span data-i18n="brand.suffix"> TEST</span></div>
+        <p class="footer-tagline" data-i18n="footer.tagline">built for builders</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.product">Product</h4>
+        <ul>
+          <li><a href="#modes" data-i18n="footer.modes">Modes</a></li>
+          <li><a href="#features" data-i18n="footer.features">Features</a></li>
+          <li><a href="#how" data-i18n="nav.howItWorks">How It Works</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.resources">Resources</h4>
+        <ul>
+          <li><a href="#" data-i18n="footer.docs">Docs</a></li>
+          <li><a href="#faq" data-i18n="nav.faq">FAQ</a></li>
+          <li><a href="#" data-i18n="footer.changelog">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer.contact">Contact</h4>
+        <ul>
+          <li><a href="#" data-i18n="footer.support">Support</a></li>
+          <li><a href="#" data-i18n="footer.privacy">Privacy</a></li>
+          <li><a href="#" data-i18n="footer.terms">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>&copy; 2026 ABOOD TEST &middot; <span data-i18n="footer.copyright">All rights reserved</span></div>
+      <div>v1.0</div>
+    </div>
+  </footer>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    // Language toggle
+    I18n.initToggle('#langToggle');
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.querySelector('.faq-q').addEventListener('click', () => {
+        const open = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!open) item.classList.add('open');
+      });
+    });
+
+    // Open first FAQ by default
+    const firstFaq = document.querySelector('.faq-item');
+    if (firstFaq) firstFaq.classList.add('open');
+
+    // If already logged in, swap signin links to hub
+    if (Auth.isLoggedIn()) {
+      document.querySelectorAll('a[href="login.html"], a[href="register.html"]').forEach(a => a.setAttribute('href', 'hub.html'));
+      const signin = document.querySelector('.signin-btn');
+      if (signin) signin.textContent = I18n.t('nav.openHub');
+    }
+  </script>
+</body>
+</html>

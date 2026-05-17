@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABOOD Test - Social</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@300;400;500;600&family=Cairo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <style>
+    .social-wrap { display: grid; grid-template-columns: 280px 1fr; gap: 16px; min-height: calc(100vh - 96px); }
+    .friends-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+    .user-row { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+    .user-row:hover, .user-row.selected { background: rgba(177, 77, 255,0.08); border-color: var(--border); }
+    .user-ava { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 13px; font-weight: 700; color: #000; flex-shrink: 0; }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 13px; color: var(--text); }
+    .user-level { font-size: 10px; color: var(--text2); font-family: var(--font-mono); }
+    .user-online { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); flex-shrink: 0; }
+    .add-btn {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--neon);
+      background: transparent;
+      color: var(--neon);
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--font-head);
+      letter-spacing: 1px;
+      transition: all 0.2s;
+    }
+    .add-btn:hover, .add-btn.added { background: var(--neon); color: #000; }
+
+    .chat-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
+    .chat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; font-family: var(--font-head); font-size: 13px; color: var(--text); letter-spacing: 2px; }
+    .chat-online-tag { font-size: 10px; color: var(--success); letter-spacing: 1px; }
+    .chat-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 400px; }
+    .chat-msg { display: flex; gap: 10px; align-items: flex-end; }
+    .chat-msg.mine { flex-direction: row-reverse; }
+    .chat-ava { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #000; flex-shrink: 0; }
+    .chat-bubble {
+      max-width: 60%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      background: rgba(177, 77, 255,0.1);
+      color: var(--text);
+      border: 1px solid rgba(177, 77, 255,0.15);
+    }
+    .chat-msg.mine .chat-bubble { background: rgba(138, 43, 226,0.25); border-color: rgba(138, 43, 226,0.3); }
+    .typing-indicator { display: flex; gap: 4px; padding: 12px 14px; background: rgba(177, 77, 255,0.08); border-radius: 14px; width: fit-content; }
+    .typing-dot { width: 7px; height: 7px; background: var(--neon); border-radius: 50%; animation: typingBounce 0.8s ease-in-out infinite; }
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typingBounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+    .chat-input-row { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid var(--border); }
+    .chat-input { flex: 1; background: rgba(20, 20, 29,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; }
+    .chat-input:focus { border-color: var(--neon); }
+    .chat-send { background: linear-gradient(135deg, var(--neon2), var(--neon)); border: none; border-radius: 10px; padding: 12px 18px; color: #000; cursor: pointer; font-size: 16px; font-weight: 700; }
+
+    @media (max-width: 900px) {
+      .social-wrap { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="page">
+  <div class="social-wrap">
+    <div class="friends-panel">
+      <div class="panel-title" data-i18n="social.online">PLAYERS ONLINE</div>
+      <div id="friendList"></div>
+    </div>
+
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="user-ava" id="chatPartnerAva">L</div>
+        <span id="chatPartnerName">Layla Hassan</span>
+        <span class="chat-online-tag">● Online</span>
+      </div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" data-i18n-placeholder="social.placeholder" placeholder="Type a message…">
+        <button class="chat-send" id="chatSend">▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+<script src="../js/app.js"></script>
+<script>
+  Auth.requireAuth();
+  Shell.mount({ active: 'social', title: { text: 'SOCIAL', i18n: 'shell.social' } });
+
+  // Mock friend list — replace with real backend once friends API exists
+  const FRIENDS = [
+    { id: 1, name: 'Sara Ali',     level: 9,  ava: 'S', color: 'linear-gradient(135deg,#ff6b6b,#ff8e53)', added: false },
+    { id: 2, name: 'Mohamed K.',   level: 6,  ava: 'M', color: 'linear-gradient(135deg,#667eea,#764ba2)', added: false },
+    { id: 3, name: 'Layla Hassan', level: 11, ava: 'L', color: 'linear-gradient(135deg,#00b09b,#96c93d)', added: true },
+    { id: 4, name: 'Omar S.',      level: 4,  ava: 'O', color: 'linear-gradient(135deg,#f093fb,#f5576c)', added: false },
+    { id: 5, name: 'Ahmed F.',     level: 7,  ava: 'A', color: 'linear-gradient(135deg,#4facfe,#00f2fe)', added: true },
+  ];
+
+  // Mock chat conversations per friend
+  const CHATS = {
+    3: [
+      { from: 'them', text: 'Hey! Did you finish the challenge yet?' },
+      { from: 'me',   text: 'Just completed it! Got 200 XP' },
+      { from: 'them', text: 'Amazing! Let\'s do the next one together?' },
+    ],
+    5: [
+      { from: 'them', text: 'I just unlocked the Frontend Pro badge!' },
+      { from: 'me',   text: 'Congrats! That took me forever' },
+    ]
+  };
+
+  let currentPartnerId = 3;
+  const user = Auth.getUser() || { username: 'Player' };
+  const myInitial = (user.username || 'A').charAt(0).toUpperCase();
+
+  function renderFriends() {
+    const html = FRIENDS.map(f => `
+      <div class="user-row ${f.id === currentPartnerId ? 'selected' : ''}" data-id="${f.id}">
+        <div class="user-ava" style="background:${f.color}">${f.ava}</div>
+        <div class="user-info">
+          <div class="user-name">${f.name}</div>
+          <div class="user-level">Level ${f.level}</div>
+        </div>
+        <div class="user-online"></div>
+        ${f.added
+          ? ''
+          : `<button class="add-btn" data-add="${f.id}" data-i18n="social.add">+ Add</button>`}
+      </div>
+    `).join('');
+    document.getElementById('friendList').innerHTML = html;
+
+    document.querySelectorAll('.user-row').forEach(r => {
+      r.addEventListener('click', e => {
+        if (e.target.closest('.add-btn')) return;
+        currentPartnerId = parseInt(r.dataset.id);
+        renderFriends();
+        renderChat();
+      });
+    });
+
+    document.querySelectorAll('.add-btn').forEach(b => {
+      b.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = parseInt(b.dataset.add);
+        const friend = FRIENDS.find(f => f.id === id);
+        if (friend) {
+          friend.added = true;
+          renderFriends();
+        }
+      });
+    });
+  }
+
+  function renderChat() {
+    const partner = FRIENDS.find(f => f.id === currentPartnerId);
+    if (!partner) return;
+    document.getElementById('chatPartnerName').textContent = partner.name;
+    const ava = document.getElementById('chatPartnerAva');
+    ava.textContent = partner.ava;
+    ava.style.background = partner.color;
+
+    const messages = CHATS[currentPartnerId] || [];
+    const html = messages.map(m => {
+      const isMine = m.from === 'me';
+      const avaStyle = isMine
+        ? 'background:linear-gradient(135deg,var(--neon2),var(--neon3))'
+        : `background:${partner.color}`;
+      const avaText = isMine ? myInitial : partner.ava;
+      return `
+        <div class="chat-msg ${isMine ? 'mine' : ''}">
+          <div class="chat-ava" style="${avaStyle}">${avaText}</div>
+          <div class="chat-bubble">${escapeHtml(m.text)}</div>
+        </div>
+      `;
+    }).join('');
+    document.getElementById('chatBody').innerHTML = html;
+    document.getElementById('chatBody').scrollTop = 999999;
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    if (!CHATS[currentPartnerId]) CHATS[currentPartnerId] = [];
+    CHATS[currentPartnerId].push({ from: 'me', text });
+    renderChat();
+
+    // Show typing indicator and fake reply
+    setTimeout(() => {
+      const body = document.getElementById('chatBody');
+      const partner = FRIENDS.find(f => f.id === currentPartnerId);
+      body.insertAdjacentHTML('beforeend', `
+        <div class="chat-msg" id="typingRow">
+          <div class="chat-ava" style="background:${partner.color}">${partner.ava}</div>
+          <div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+        </div>
+      `);
+      body.scrollTop = 999999;
+      setTimeout(() => {
+        document.getElementById('typingRow')?.remove();
+        const replies = [
+          'Nice!', 'Cool!', "Let's tackle the next challenge!", "I'm on it!",
+          'Got it 👍', 'Sounds good!', "I'll catch up soon!"
+        ];
+        const r = replies[Math.floor(Math.random() * replies.length)];
+        CHATS[currentPartnerId].push({ from: 'them', text: r });
+        renderChat();
+      }, 1200);
+    }, 400);
+  }
+
+  document.getElementById('chatSend').addEventListener('click', sendMessage);
+  document.getElementById('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  renderFriends();
+  renderChat();
+</script>
+</body>
+</html>
