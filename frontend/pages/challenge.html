@@ -10,17 +10,7 @@
 
     html[dir="rtl"] * { font-family: 'Cairo', sans-serif; }
     html[dir="rtl"] .brand, html[dir="rtl"] .challenge-title { font-family: 'Orbitron', 'Cairo', sans-serif; }
-    .code-editor { font-family: 'JetBrains Mono', monospace !important; }
-
-    .lang-toggle {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; background: transparent;
-      border: 1px solid var(--border); color: var(--text-secondary);
-      border-radius: 20px; font-size: 12px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .lang-toggle:hover { border-color: var(--accent-purple); color: var(--text-primary); }
-    .lang-toggle svg { width: 13px; height: 13px; }
+    .code-editor, .preview-output, .terminal { font-family: 'JetBrains Mono', monospace !important; }
 
     :root {
       --bg-black: #0a0a0f;
@@ -31,6 +21,7 @@
       --accent-green: #4dffaa;
       --accent-pink: #ff4d8e;
       --accent-amber: #ffaa4d;
+      --accent-blue: #64b5f6;
       --text-primary: #ffffff;
       --text-secondary: #8b8ba0;
       --text-muted: #5a5a6e;
@@ -51,142 +42,282 @@
 
     .top-nav {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 24px 48px; border-bottom: 1px solid var(--border);
+      padding: 18px 36px; border-bottom: 1px solid var(--border);
       background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(10px);
       position: sticky; top: 0; z-index: 100;
     }
 
-    .brand {
-      font-family: 'Orbitron', sans-serif; font-size: 22px;
-      font-weight: 700; letter-spacing: 4px; cursor: pointer;
-    }
+    .brand { font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: 4px; cursor: pointer; }
     .brand span { color: var(--accent-purple); }
 
-    .user-stats { display: flex; gap: 12px; align-items: center; }
-
+    .user-stats { display: flex; gap: 10px; align-items: center; }
     .stat-pill {
       display: flex; align-items: center; gap: 6px;
       padding: 6px 14px; background: var(--bg-card);
-      border: 1px solid var(--border); border-radius: 20px; font-size: 13px;
+      border: 1px solid var(--border); border-radius: 20px; font-size: 12px;
     }
-    .stat-pill .label { color: var(--text-muted); }
+    .stat-pill .label { color: var(--text-muted); font-size: 10px; letter-spacing: 1px; }
     .stat-pill .value { color: var(--text-primary); font-weight: 600; }
 
-    .logout-btn {
-      padding: 8px 18px; background: transparent;
-      border: 1px solid var(--border); color: var(--text-secondary);
-      border-radius: 20px; cursor: pointer; font-size: 13px;
+    .user-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 14px 5px 5px;
+      background: rgba(177, 77, 255, 0.08);
+      border: 1px solid rgba(177, 77, 255, 0.35);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+      text-decoration: none; color: var(--text-primary);
     }
+    .user-chip .avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(135deg, #b14dff, #ff4d8e);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+    }
+    .lang-toggle, .logout-btn {
+      padding: 7px 14px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .lang-toggle:hover, .logout-btn:hover { border-color: var(--accent-purple); color: var(--text-primary); }
 
-    .main-container { max-width: 900px; margin: 0 auto; padding: 48px; position: relative; z-index: 2; }
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 28px 36px; position: relative; z-index: 2; }
 
     .back-btn {
       background: transparent; border: 1px solid var(--border);
-      color: var(--text-secondary); padding: 10px 18px;
-      border-radius: 20px; cursor: pointer; font-size: 13px;
-      margin-bottom: 32px; display: inline-flex; align-items: center; gap: 8px;
+      color: var(--text-secondary); padding: 8px 16px;
+      border-radius: 20px; cursor: pointer; font-size: 12px;
+      margin-bottom: 18px; display: inline-flex; align-items: center; gap: 8px;
     }
     .back-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
 
-    .challenge-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 36px;
+    /* Challenge header */
+    .challenge-header { margin-bottom: 18px; }
+    .challenge-meta { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+    .section-badge {
+      padding: 4px 12px; border-radius: 999px; font-size: 11px;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .section-badge.frontend { background: rgba(192, 128, 255, 0.15); color: #c080ff; border: 1px solid rgba(192, 128, 255, 0.3); }
+    .section-badge.backend { background: rgba(177, 77, 255, 0.15); color: var(--accent-purple); border: 1px solid rgba(177, 77, 255, 0.3); }
+    .section-badge.cybersecurity { background: rgba(77, 255, 170, 0.12); color: var(--accent-green); border: 1px solid rgba(77, 255, 170, 0.3); }
+    .section-badge.ehr { background: rgba(100, 181, 246, 0.15); color: var(--accent-blue); border: 1px solid rgba(100, 181, 246, 0.3); }
+    .difficulty-badge {
+      padding: 4px 12px; border-radius: 999px; font-size: 11px;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+    }
+    .difficulty-badge.easy { color: var(--accent-green); border-color: rgba(77, 255, 170, 0.25); }
+    .difficulty-badge.medium { color: var(--accent-amber); border-color: rgba(255, 170, 77, 0.25); }
+    .difficulty-badge.hard { color: var(--accent-pink); border-color: rgba(255, 77, 142, 0.25); }
+    .reward-badge {
+      padding: 4px 12px; border-radius: 999px; font-size: 11px;
+      background: rgba(255, 170, 77, 0.08); color: var(--accent-amber);
+      border: 1px solid rgba(255, 170, 77, 0.25);
     }
 
     .challenge-title {
-      font-family: 'Orbitron', sans-serif; font-size: 28px;
-      font-weight: 700; letter-spacing: 2px; margin-bottom: 12px;
+      font-family: 'Orbitron', sans-serif; font-size: 26px;
+      font-weight: 700; letter-spacing: 2px; margin-bottom: 8px;
+    }
+    .challenge-description { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+    /* Game layout — split pane */
+    .game-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
     }
 
-    .challenge-description {
-      color: var(--text-secondary); font-size: 16px;
-      line-height: 1.7; margin-bottom: 24px;
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
+
+    .panel-head {
+      padding: 12px 18px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .panel-dots { display: flex; gap: 6px; }
+    .panel-dots span { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+    .panel-dots span:nth-child(1) { background: #ff5f57; }
+    .panel-dots span:nth-child(2) { background: #ffbd2e; }
+    .panel-dots span:nth-child(3) { background: #27c93f; }
 
     .instruction-box {
       background: var(--bg-darker); border-left: 3px solid var(--accent-purple);
-      padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;
-      font-size: 14px; color: var(--text-secondary);
+      padding: 14px 18px; border-radius: 8px; margin-bottom: 14px;
+      font-size: 13px; color: var(--text-secondary); line-height: 1.6;
     }
-
+    html[dir="rtl"] .instruction-box { border-left: none; border-right: 3px solid var(--accent-purple); }
     .instruction-box strong { color: var(--text-primary); }
-
-    .editor-label {
-      color: var(--text-muted); font-size: 12px;
-      letter-spacing: 2px; text-transform: uppercase;
-      margin-bottom: 10px; display: block;
+    .instruction-box .task-icon {
+      display: inline-flex; width: 22px; height: 22px;
+      background: var(--accent-purple); border-radius: 50%;
+      align-items: center; justify-content: center;
+      margin-right: 8px; font-size: 12px; color: #fff;
     }
 
     .code-editor {
-      background: #050508; border: 1px solid var(--border);
-      border-radius: 10px; padding: 18px;
-      min-height: 220px; width: 100%;
-      color: #e6edf3; font-family: 'JetBrains Mono', monospace;
-      font-size: 14px; line-height: 1.6; resize: vertical;
+      background: #050508; border: none;
+      padding: 18px;
+      flex: 1; min-height: 280px;
+      color: #e6edf3;
+      font-size: 14px; line-height: 1.65;
+      resize: none;
       direction: ltr; text-align: left; outline: none;
-      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .code-editor::placeholder { color: var(--text-muted); }
+
+    /* Live preview pane for frontend */
+    .preview-frame {
+      flex: 1; min-height: 280px;
+      background: #ffffff;
+      border: none;
+      width: 100%;
     }
 
-    .code-editor:focus { border-color: var(--accent-cyan); }
+    /* Simulated terminal pane for backend / cybersec / ehr */
+    .sim-pane {
+      flex: 1; min-height: 280px;
+      background: #050508;
+      padding: 16px 18px;
+      color: var(--accent-green);
+      font-size: 13px; line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-y: auto;
+    }
+    .sim-pane .sim-line { display: block; }
+    .sim-pane .sim-prompt { color: var(--accent-cyan); }
+    .sim-pane .sim-warn { color: var(--accent-amber); }
+    .sim-pane .sim-ok { color: var(--accent-green); }
+    .sim-pane .sim-info { color: var(--text-secondary); }
+    .sim-pane .sim-cursor::after {
+      content: '_'; color: var(--accent-green);
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
 
-    .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+    /* Progress meter — how close their answer is to matching */
+    .progress-meter {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid var(--border);
+    }
+    .progress-meter-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 2px;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+    .progress-meter-track {
+      flex: 1; height: 6px; background: rgba(255,255,255,0.05);
+      border-radius: 999px; overflow: hidden;
+    }
+    .progress-meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+      transition: width 0.3s ease;
+      box-shadow: 0 0 12px var(--accent-purple);
+    }
+    .progress-meter-pct {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600; min-width: 38px; text-align: right;
+      color: var(--accent-cyan);
+    }
+    .progress-meter.match .progress-meter-fill { background: linear-gradient(90deg, var(--accent-green), var(--accent-cyan)); box-shadow: 0 0 16px var(--accent-green); }
+    .progress-meter.match .progress-meter-pct { color: var(--accent-green); }
+
+    /* Bottom action bar */
+    .action-bar {
+      display: flex; gap: 12px; margin-top: 16px;
+      align-items: center; flex-wrap: wrap;
+    }
 
     .btn-primary {
-      padding: 13px 28px;
+      padding: 13px 32px;
       background: var(--accent-purple);
       color: white; border: none;
       border-radius: 8px; cursor: pointer;
-      font-size: 14px; font-weight: 600;
+      font-size: 14px; font-weight: 700;
       letter-spacing: 1px; transition: all 0.2s;
+      text-transform: uppercase;
     }
-
-    .btn-primary:hover {
-      background: #a13ee8;
-      box-shadow: 0 0 20px rgba(177, 77, 255, 0.3);
-    }
-
+    .btn-primary:hover { background: #a13ee8; box-shadow: 0 0 20px rgba(177, 77, 255, 0.4); }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .btn-secondary {
       padding: 13px 24px; background: transparent;
       border: 1px solid var(--border); color: var(--text-secondary);
-      border-radius: 8px; cursor: pointer; font-size: 14px;
+      border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
     }
-
     .btn-secondary:hover { border-color: var(--accent-amber); color: var(--accent-amber); }
 
-    .result-box {
-      margin-top: 20px; padding: 16px 20px;
-      border-radius: 10px; display: none; font-size: 14px;
+    .btn-ghost {
+      padding: 13px 18px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 8px; cursor: pointer; font-size: 13px;
     }
+    .btn-ghost:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
 
+    .result-box {
+      margin-top: 14px; padding: 14px 18px;
+      border-radius: 10px; display: none; font-size: 14px;
+      animation: slideIn 0.4s ease;
+    }
+    @keyframes slideIn { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .result-box.success {
       background: rgba(77, 255, 170, 0.08);
       border: 1px solid var(--accent-green);
       color: var(--accent-green);
     }
-
     .result-box.error {
       background: rgba(255, 77, 142, 0.08);
       border: 1px solid var(--accent-pink);
       color: var(--accent-pink);
     }
-
     .hint-box {
       margin-top: 12px; padding: 12px 16px;
       background: rgba(255, 170, 77, 0.08);
-      border: 1px solid var(--accent-amber);
+      border: 1px solid rgba(255, 170, 77, 0.4);
       border-radius: 8px; color: var(--accent-amber); font-size: 13px;
       display: none;
     }
 
+    /* XP / coin pop animation */
+    .reward-pop {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(77, 255, 170, 0.15);
+      border-radius: 6px;
+      margin: 0 4px;
+      font-weight: 700;
+      animation: pop 0.6s ease;
+    }
+    @keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+
+    /* Level up modal */
     .level-up-modal {
       position: fixed; inset: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.85);
       display: none; justify-content: center; align-items: center;
-      z-index: 1000;
+      z-index: 1000; backdrop-filter: blur(6px);
     }
-
     .level-up-content {
       background: var(--bg-card);
       border: 2px solid var(--accent-cyan);
@@ -194,28 +325,33 @@
       text-align: center; animation: scaleIn 0.4s;
       box-shadow: 0 0 60px rgba(255, 77, 142, 0.3);
     }
-
-    @keyframes scaleIn {
-      from { transform: scale(0.5); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
+    @keyframes scaleIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .level-up-content h2 {
       font-family: 'Orbitron', sans-serif;
       font-size: 36px; letter-spacing: 4px;
       color: var(--accent-cyan); margin-bottom: 16px;
     }
+    .level-up-content p { color: var(--text-secondary); margin-bottom: 24px; }
 
-    .level-up-content p {
-      color: var(--text-secondary); margin-bottom: 24px;
+    /* Confetti container */
+    .confetti { position: fixed; pointer-events: none; inset: 0; overflow: hidden; z-index: 999; }
+    .confetti-piece {
+      position: absolute; width: 8px; height: 14px;
+      animation: fall 2.2s ease-out forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
     }
 
+    @media (max-width: 1000px) {
+      .game-grid { grid-template-columns: 1fr; }
+      .preview-frame, .sim-pane, .code-editor { min-height: 220px; }
+    }
     @media (max-width: 768px) {
-      .top-nav { padding: 16px 20px; flex-wrap: wrap; gap: 12px; }
-      .main-container { padding: 24px 20px; }
-      .challenge-card { padding: 24px; }
-      .challenge-title { font-size: 22px; }
-      .btn-group { flex-direction: column; }
+      .top-nav { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+      .main-container { padding: 18px 16px; }
+      .challenge-title { font-size: 20px; }
+      .action-bar { flex-direction: column; align-items: stretch; }
     }
   </style>
 </head>
@@ -226,11 +362,11 @@
       <div class="stat-pill"><span class="label" data-i18n="hub.xp">XP</span><span class="value" id="userXp">0</span></div>
       <div class="stat-pill"><span class="label" data-i18n="hub.coins">COINS</span><span class="value" id="userCoins">0</span></div>
       <div class="stat-pill"><span class="label" data-i18n="hub.level">LVL</span><span class="value" id="userLevel">1</span></div>
+      <a class="user-chip" href="hub.html" id="userChip" title="Player">
+        <span class="avatar" id="userAvatar">A</span>
+        <span class="uname" id="userName">Player</span>
+      </a>
       <button class="lang-toggle" id="langToggle" title="Switch language">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle><path d="M2 12h20"></path>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-        </svg>
         <span class="lang-toggle-label">AR</span>
       </button>
       <button class="logout-btn" onclick="Auth.logout()" data-i18n="nav.logout">Log out</button>
@@ -245,8 +381,8 @@
       <span data-i18n="challenge.back">Back</span>
     </button>
 
-    <div class="challenge-card" id="challengeCard">
-      <div style="text-align:center;color:var(--text-muted);padding:40px" data-i18n="challenge.loading">Loading challenge...</div>
+    <div id="challengeRoot">
+      <div style="text-align:center;color:var(--text-muted);padding:60px" data-i18n="challenge.loading">Loading challenge...</div>
     </div>
   </div>
 
@@ -268,6 +404,7 @@
     const params = new URLSearchParams(window.location.search);
     const challengeId = params.get('id');
     let currentChallenge = null;
+    let livePattern = null;
 
     async function loadChallenge() {
       try {
@@ -282,6 +419,8 @@
         renderChallenge(currentChallenge);
       } catch (err) {
         console.error(err);
+        document.getElementById('challengeRoot').innerHTML =
+          `<div style="text-align:center;color:var(--accent-pink);padding:40px">Failed to load challenge: ${err.message}</div>`;
       }
     }
 
@@ -289,31 +428,258 @@
       document.getElementById('userXp').textContent = user.xp;
       document.getElementById('userCoins').textContent = user.coins;
       document.getElementById('userLevel').textContent = user.level;
+      const name = user.username || 'Player';
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userAvatar').textContent = (name.charAt(0) || 'A').toUpperCase();
+      document.getElementById('userChip').setAttribute('title', name);
+    }
+
+    // Build the right-hand "game" pane based on section type.
+    // Frontend = live iframe preview.
+    // Backend/Cybersec/EHR = simulated terminal / output view.
+    function buildGamePane(section) {
+      if (section === 'frontend') {
+        return `
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">⚡ LIVE PREVIEW</span>
+              <div class="panel-dots"><span></span><span></span><span></span></div>
+            </div>
+            <iframe id="livePreview" class="preview-frame" sandbox="allow-scripts" title="live preview"></iframe>
+          </div>
+        `;
+      }
+      const title = section === 'backend' ? '▶ TERMINAL'
+                  : section === 'cybersecurity' ? '⚷ SECURITY LAB'
+                  : '✚ EHR SIMULATOR';
+      return `
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">${title}</span>
+            <div class="panel-dots"><span></span><span></span><span></span></div>
+          </div>
+          <div id="simPane" class="sim-pane"></div>
+        </div>
+      `;
     }
 
     function renderChallenge(c) {
       const data = c.challenge_data;
-      const card = document.getElementById('challengeCard');
-      card.innerHTML = `
-        <div class="challenge-title">${c.title}</div>
-        <div class="challenge-description">${c.description}</div>
+      const root = document.getElementById('challengeRoot');
+      const section = c.section || 'frontend';
+
+      root.innerHTML = `
+        <div class="challenge-header">
+          <div class="challenge-meta">
+            <span class="section-badge ${section}">${section.toUpperCase()}</span>
+            <span class="difficulty-badge ${c.difficulty}">${c.difficulty}</span>
+            <span class="reward-badge">+${c.xp_reward} XP · +${c.coins_reward} 🟡</span>
+          </div>
+          <div class="challenge-title">${c.title}</div>
+          <div class="challenge-description">${c.description}</div>
+        </div>
 
         <div class="instruction-box">
+          <span class="task-icon">!</span>
           <strong>${I18n.t('challenge.task')}</strong> ${data.instruction}
         </div>
 
-        <span class="editor-label" data-i18n="challenge.editor">CODE EDITOR</span>
-        <textarea id="codeEditor" class="code-editor" spellcheck="false">${data.starter_code || ''}</textarea>
+        <div class="game-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="panel-title">⌨ YOUR CODE</span>
+              <div class="panel-dots"><span></span><span></span><span></span></div>
+            </div>
+            <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="Start typing your solution...">${data.starter_code || ''}</textarea>
+            <div class="progress-meter" id="progMeter">
+              <span class="progress-meter-label">MATCH</span>
+              <div class="progress-meter-track">
+                <div class="progress-meter-fill" id="progFill" style="width:0%"></div>
+              </div>
+              <span class="progress-meter-pct" id="progPct">0%</span>
+            </div>
+          </div>
 
-        <div class="btn-group">
+          ${buildGamePane(section)}
+        </div>
+
+        <div class="action-bar">
           <button class="btn-primary" onclick="submitAnswer()" id="submitBtn" data-i18n="challenge.submit">SUBMIT</button>
           <button class="btn-secondary" onclick="showHint()" data-i18n="challenge.hint">Show Hint</button>
+          <button class="btn-ghost" onclick="resetEditor()">↺ Reset</button>
         </div>
 
         <div id="hintBox" class="hint-box"></div>
         <div id="resultBox" class="result-box"></div>
       `;
       I18n.apply();
+
+      // Compile pattern for live progress feedback
+      try { livePattern = new RegExp(data.expected_pattern, 'i'); } catch (e) { livePattern = null; }
+
+      const editor = document.getElementById('codeEditor');
+      editor.addEventListener('input', () => updateGamePane(editor.value, section));
+      // Initial render
+      updateGamePane(editor.value, section);
+    }
+
+    // Update the game pane (preview or sim) as the user types
+    function updateGamePane(code, section) {
+      updateProgress(code);
+      if (section === 'frontend') {
+        renderLivePreview(code);
+      } else {
+        renderSimulator(code, section);
+      }
+    }
+
+    function renderLivePreview(code) {
+      const iframe = document.getElementById('livePreview');
+      if (!iframe) return;
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+        body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; color: #14141d; background: #fff; line-height: 1.6; margin: 0; }
+        * { box-sizing: border-box; }
+      </style></head><body>${code}</body></html>`;
+      iframe.srcdoc = html;
+    }
+
+    function renderSimulator(code, section) {
+      const pane = document.getElementById('simPane');
+      if (!pane) return;
+      const trimmed = code.trim();
+
+      if (!trimmed) {
+        pane.innerHTML = `
+          <span class="sim-info">// Start typing to see live feedback</span><br>
+          <span class="sim-prompt">$</span> <span class="sim-cursor"></span>
+        `;
+        return;
+      }
+
+      const lines = [];
+      if (section === 'backend') {
+        lines.push(`<span class="sim-prompt">$</span> <span class="sim-info">node solution.js</span>`);
+        lines.push('');
+        // Echo some hints based on the code
+        if (/require\s*\(/.test(code)) lines.push(`<span class="sim-ok">✓</span> module loaded`);
+        if (/console\.log/.test(code)) lines.push(`<span class="sim-ok">✓</span> console.log detected`);
+        if (/SELECT|INSERT|UPDATE|DELETE/i.test(code)) lines.push(`<span class="sim-ok">✓</span> SQL statement found`);
+        if (/function\s+\w+|=>|def\s+\w+/.test(code)) lines.push(`<span class="sim-ok">✓</span> function defined`);
+        if (/=SUM\(|=AVERAGE\(|=COUNT\(|=IF\(/i.test(code)) lines.push(`<span class="sim-ok">✓</span> Excel formula detected`);
+        lines.push('');
+        lines.push(`<span class="sim-info">// ${code.split('\n').length} line(s) · ${code.length} chars</span>`);
+      } else if (section === 'cybersecurity') {
+        lines.push(`<span class="sim-prompt">[lab]$</span> <span class="sim-info">analyzing input...</span>`);
+        lines.push('');
+        const t = trimmed.toLowerCase();
+        // Tiny helpers to make it feel interactive
+        if (/^[0-9a-f]{32}$/i.test(trimmed)) lines.push(`<span class="sim-warn">hash:</span> looks like MD5 (32 hex chars)`);
+        else if (/^[0-9a-f]{40}$/i.test(trimmed)) lines.push(`<span class="sim-warn">hash:</span> looks like SHA-1 (40 hex chars)`);
+        else if (/^[0-9a-f]{64}$/i.test(trimmed)) lines.push(`<span class="sim-warn">hash:</span> looks like SHA-256 (64 hex chars)`);
+        if (/^[A-Za-z0-9+/=]{8,}$/.test(trimmed) && trimmed.length % 4 === 0) {
+          try {
+            const decoded = atob(trimmed);
+            if (/^[\x20-\x7e]+$/.test(decoded)) lines.push(`<span class="sim-ok">base64 →</span> ${escapeHtml(decoded)}`);
+          } catch (e) {}
+        }
+        // Caesar cipher quick-test
+        if (/^[A-Za-z\s]+$/.test(trimmed) && trimmed.length > 3) {
+          const rot13 = trimmed.replace(/[A-Za-z]/g, ch => {
+            const base = ch <= 'Z' ? 65 : 97;
+            return String.fromCharCode((ch.charCodeAt(0) - base + 13) % 26 + base);
+          });
+          lines.push(`<span class="sim-info">rot13 →</span> ${escapeHtml(rot13)}`);
+        }
+        lines.push('');
+        lines.push(`<span class="sim-info">// ${code.length} chars in buffer</span>`);
+      } else {
+        // EHR
+        lines.push(`<span class="sim-prompt">[ehr]</span> <span class="sim-info">parsing record...</span>`);
+        lines.push('');
+        if (/temp|temperature/i.test(code)) lines.push(`<span class="sim-ok">🌡</span> temperature field found`);
+        if (/bp|blood\s*pressure|systolic|diastolic/i.test(code)) lines.push(`<span class="sim-ok">❤</span> blood pressure data`);
+        if (/hr|heart\s*rate|pulse/i.test(code)) lines.push(`<span class="sim-ok">♥</span> heart rate noted`);
+        if (/icd|cpt|loinc|snomed/i.test(code)) lines.push(`<span class="sim-ok">📋</span> medical code reference`);
+        if (/patient|mrn|dob/i.test(code)) lines.push(`<span class="sim-ok">👤</span> patient identifier`);
+        lines.push('');
+        lines.push(`<span class="sim-info">// preview · ${code.split('\n').length} line(s)</span>`);
+      }
+      pane.innerHTML = lines.join('<br>');
+    }
+
+    // Live match-progress: shows how close the answer is to the expected pattern.
+    // Gives instant feedback so it feels like a game, not a quiz.
+    function updateProgress(code) {
+      const fill = document.getElementById('progFill');
+      const pct = document.getElementById('progPct');
+      const meter = document.getElementById('progMeter');
+      if (!fill || !pct || !livePattern) return;
+
+      if (!code || !code.trim()) {
+        fill.style.width = '0%';
+        pct.textContent = '0%';
+        meter.classList.remove('match');
+        return;
+      }
+
+      let percent = 0;
+      if (livePattern.test(code)) {
+        percent = 100;
+        meter.classList.add('match');
+      } else {
+        // Heuristic: progressive sub-pattern match from the start
+        const src = livePattern.source;
+        const len = src.length;
+        let lo = 4, hi = len, best = 0;
+        while (lo <= hi) {
+          const mid = (lo + hi) >> 1;
+          let ok = false;
+          try {
+            const sub = new RegExp(src.slice(0, mid), 'i');
+            ok = sub.test(code);
+          } catch (e) { ok = false; }
+          if (ok) { best = mid; lo = mid + 1; } else { hi = mid - 1; }
+        }
+        percent = Math.min(95, Math.round((best / len) * 100));
+        meter.classList.remove('match');
+      }
+      fill.style.width = percent + '%';
+      pct.textContent = percent + '%';
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function resetEditor() {
+      const editor = document.getElementById('codeEditor');
+      editor.value = currentChallenge.challenge_data.starter_code || '';
+      updateGamePane(editor.value, currentChallenge.section);
+    }
+
+    function showHint() {
+      const data = currentChallenge.challenge_data;
+      const hintBox = document.getElementById('hintBox');
+      hintBox.textContent = '💡 ' + (data.hint || 'No hint available');
+      hintBox.style.display = 'block';
+    }
+
+    function celebrate() {
+      const colors = ['#b14dff', '#ff4d8e', '#4dffaa', '#ffaa4d', '#64b5f6'];
+      const wrap = document.createElement('div');
+      wrap.className = 'confetti';
+      for (let i = 0; i < 60; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = (Math.random() * 100) + 'vw';
+        piece.style.top = (-10 - Math.random() * 30) + 'vh';
+        piece.style.background = colors[i % colors.length];
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        piece.style.animationDelay = (Math.random() * 0.4) + 's';
+        wrap.appendChild(piece);
+      }
+      document.body.appendChild(wrap);
+      setTimeout(() => wrap.remove(), 2600);
     }
 
     async function submitAnswer() {
@@ -329,10 +695,11 @@
         const result = await API.submitChallenge(challengeId, answer);
 
         if (result.correct) {
+          celebrate();
           resultBox.className = 'result-box success';
-          let msg = result.message;
+          let msg = '✓ ' + result.message;
           if (result.xp_gained) {
-            msg += `<br><br>+${result.xp_gained} XP &nbsp; · &nbsp; +${result.coins_gained} COINS`;
+            msg += `<br><br><span class="reward-pop">+${result.xp_gained} XP</span><span class="reward-pop">+${result.coins_gained} COINS</span>`;
           }
           resultBox.innerHTML = msg;
           resultBox.style.display = 'block';
@@ -343,7 +710,7 @@
           }
 
           if (result.leveled_up) {
-            document.getElementById('levelUpModal').style.display = 'flex';
+            setTimeout(() => { document.getElementById('levelUpModal').style.display = 'flex'; }, 600);
           }
 
           setTimeout(() => {
@@ -353,9 +720,9 @@
           }, 1500);
         } else {
           resultBox.className = 'result-box error';
-          resultBox.innerHTML = result.message;
+          resultBox.innerHTML = '✗ ' + result.message;
           if (result.hint) {
-            resultBox.innerHTML += `<br><br><em>${I18n.t('challenge.hint')}: ${result.hint}</em>`;
+            resultBox.innerHTML += `<br><br><em>💡 ${I18n.t('challenge.hint')}: ${result.hint}</em>`;
           }
           resultBox.style.display = 'block';
           btn.disabled = false;
@@ -368,13 +735,6 @@
         btn.disabled = false;
         btn.textContent = I18n.t('challenge.submit');
       }
-    }
-
-    function showHint() {
-      const data = currentChallenge.challenge_data;
-      const hintBox = document.getElementById('hintBox');
-      hintBox.textContent = data.hint || 'No hint available';
-      hintBox.style.display = 'block';
     }
 
     function closeLevelUp() {

@@ -169,6 +169,41 @@
       border-color: var(--text-primary);
     }
 
+    .user-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px 6px 6px;
+      background: rgba(177, 77, 255, 0.08);
+      border: 1px solid rgba(177, 77, 255, 0.35);
+      color: var(--text-primary);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+      text-decoration: none;
+    }
+    .user-chip:hover {
+      background: rgba(177, 77, 255, 0.18);
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 16px rgba(177, 77, 255, 0.25);
+    }
+    .user-chip .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #b14dff, #ff4d8e);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+    .user-chip .uname { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
     /* ==================== Hero ==================== */
     .hero {
       position: relative;
@@ -1108,7 +1143,7 @@
         </div>
         <div class="mode-name" data-i18n="mode.backend.name">BACKEND</div>
         <div class="mode-desc" data-i18n="mode.backend.desc">APIs, logic, and algorithm puzzles.</div>
-        <div class="mode-tag" data-i18n="mode.status.soon">Coming soon</div>
+        <div class="mode-tag active" data-i18n="mode.status.available">Available now</div>
       </div>
 
       <div class="mode-card cybersecurity">
@@ -1117,7 +1152,7 @@
         </div>
         <div class="mode-name" data-i18n="mode.cyber.name">CYBERSEC</div>
         <div class="mode-desc" data-i18n="mode.cyber.desc">Encryption challenges and hacking puzzles.</div>
-        <div class="mode-tag" data-i18n="mode.status.soon">Coming soon</div>
+        <div class="mode-tag active" data-i18n="mode.status.available">Available now</div>
       </div>
 
       <div class="mode-card ehr">
@@ -1126,7 +1161,7 @@
         </div>
         <div class="mode-name" data-i18n="mode.ehr.name">EHR</div>
         <div class="mode-desc" data-i18n="mode.ehr.desc">Electronic Health Records and medical case simulations.</div>
-        <div class="mode-tag" data-i18n="mode.status.soon">Coming soon</div>
+        <div class="mode-tag active" data-i18n="mode.status.available">Available now</div>
       </div>
     </div>
   </section>
@@ -1354,11 +1389,37 @@
     const firstFaq = document.querySelector('.faq-item');
     if (firstFaq) firstFaq.classList.add('open');
 
-    // If already logged in, swap signin links to hub
+    // If already logged in: swap signin links to hub AND show username chip in topbar
     if (Auth.isLoggedIn()) {
       document.querySelectorAll('a[href="login.html"], a[href="register.html"]').forEach(a => a.setAttribute('href', 'hub.html'));
+
       const signin = document.querySelector('.signin-btn');
-      if (signin) signin.textContent = I18n.t('nav.openHub');
+      const user = Auth.getUser();
+      const fallbackName = (user && user.username) ? user.username : 'Player';
+      const initial = fallbackName.trim().charAt(0).toUpperCase() || 'A';
+
+      if (signin) {
+        signin.outerHTML = `
+          <a class="user-chip" href="hub.html" title="${fallbackName}">
+            <span class="avatar">${initial}</span>
+            <span class="uname">${fallbackName}</span>
+          </a>
+        `;
+      }
+
+      // Refresh from server in background, then re-render with the live name
+      if (typeof API !== 'undefined' && API.getMe) {
+        API.getMe().then(u => {
+          if (!u || !u.username) return;
+          Auth.setUser(u);
+          const chip = document.querySelector('.user-chip');
+          if (chip) {
+            chip.setAttribute('title', u.username);
+            chip.querySelector('.uname').textContent = u.username;
+            chip.querySelector('.avatar').textContent = (u.username.charAt(0) || 'A').toUpperCase();
+          }
+        }).catch(() => {});
+      }
     }
   </script>
 </body>

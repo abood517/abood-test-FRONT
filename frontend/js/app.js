@@ -106,15 +106,17 @@ const Auth = {
   },
 
   // Logout and redirect to login page
+  // Uses a relative path so it works whether the app is hosted at
+  // origin/, /abood-test-FRONT/, /any/sub/path/, etc.
   logout() {
     this.removeToken();
-    window.location.href = '/pages/login.html';
+    window.location.href = 'login.html';
   },
 
   // Redirect to login if not authenticated
   requireAuth() {
     if (!this.isLoggedIn()) {
-      window.location.href = '/pages/login.html';
+      window.location.href = 'login.html';
     }
   }
 };
