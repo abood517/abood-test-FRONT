@@ -253,7 +253,7 @@ const Shell = {
 
     return `
       <aside class="sidebar" id="sidebar">
-        <a class="sb-logo" href="landing.html">ABOOD<span class="accent"> TEST</span></a>
+        <a class="sb-logo" href="landing.html">MEDPLAY<span class="accent"> NEXUS</span></a>
         <div class="sb-user">
           <div class="sb-avatar">${this.initials(user.username)}</div>
           <div class="sb-info">

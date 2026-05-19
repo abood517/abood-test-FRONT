@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ABOOD Test - Cinematic Demo</title>
+<title>MedPlay Nexus - Cinematic Demo</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Exo+2:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -299,14 +299,14 @@
           <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="url(#lg)" font-family="Orbitron,sans-serif" font-size="14" font-weight="900" filter="url(#glow)">AT</text>
         </svg>
       </div>
-      <div class="logo-title">ABOOD Test</div>
+      <div class="logo-title">MedPlay Nexus</div>
       <div class="logo-sub">Educational Gaming Platform</div>
     </div>
   </div>
 
   <div class="scene" id="s1">
     <div class="auth-card">
-      <div class="auth-logo">⬡ ABOOD TEST</div>
+      <div class="auth-logo">⬡ MEDPLAY NEXUS</div>
       <div class="auth-tabs">
         <div class="auth-tab" id="tab-register">REGISTER</div>
         <div class="auth-tab active" id="tab-login">LOGIN</div>
@@ -329,7 +329,7 @@
   <div class="scene" id="s2">
     <div class="dashboard">
       <div class="sidebar">
-        <div class="sb-logo">⬡ ABOOD TEST</div>
+        <div class="sb-logo">⬡ MEDPLAY NEXUS</div>
         <div class="sb-user">
           <div class="sb-avatar">A</div>
           <div class="sb-info"><div class="sb-name">Ahmed Hassan</div><div class="sb-id">#AT-2847</div></div>
@@ -479,12 +479,12 @@
   <div class="scene" id="s6">
     <div class="ai-full">
       <div class="ai-main-chat">
-        <div class="ai-title-bar"><div class="ai-dot"></div>AI ASSISTANT <span style="font-size:10px;color:var(--text2);margin-left:auto;">Powered by ABOOD-AI v2.1</span></div>
+        <div class="ai-title-bar"><div class="ai-dot"></div>AI ASSISTANT <span style="font-size:10px;color:var(--text2);margin-left:auto;">Powered by MedPlay-AI v2.1</span></div>
         <div class="ai-chat-area" id="ai-chat-area">
           <div class="ai-chat-msg bot">Hello Ahmed! I'm your coding assistant. How can I help today?</div>
           <div class="ai-chat-msg user-msg" id="ai-user-msg" style="opacity:0;transition:opacity .3s;">Explain CSS Flexbox to me</div>
           <div class="ai-chat-msg bot" id="ai-bot-resp" style="opacity:0;transition:opacity .3s;"></div>
-          <div class="ai-typing hidden" id="ai-typing-ind"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>ABOOD-AI is analyzing…</span></div>
+          <div class="ai-typing hidden" id="ai-typing-ind"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>MedPlay-AI is analyzing…</span></div>
         </div>
         <div class="ai-input-area"><input class="ai-main-input" id="ai-main-input" placeholder="Ask anything…" readonly/><button class="ai-main-send">▶</button></div>
       </div>
@@ -585,7 +585,7 @@
           <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="url(#lg2)" font-family="Orbitron,sans-serif" font-size="14" font-weight="900" filter="url(#glow2)">AT</text>
         </svg>
       </div>
-      <div class="logo-title" style="animation:none;">ABOOD Test</div>
+      <div class="logo-title" style="animation:none;">MedPlay Nexus</div>
       <div class="logo-sub" style="animation:none;">Learn. Play. Evolve.</div>
       <div class="final-tagline">THE FUTURE OF CODING EDUCATION</div>
     </div>
@@ -605,7 +605,7 @@ function clickAt(tx,ty,cb,ms=600){moveCursorTo(tx,ty,ms,()=>{cursor.classList.ad
 cursor.style.left=cx+'px';cursor.style.top=cy+'px';
 
 const scenes=['s0','s1','s2','s3','s4','s5','s6','s7','s8','s9','sfinal'];
-const sceneNames=['INTRO','AUTH','DASHBOARD','GAME MODES','GAMEPLAY','SOCIAL','AI ASSISTANT','ANALYTICS','ACHIEVEMENTS','SETTINGS','ABOOD TEST'];
+const sceneNames=['INTRO','AUTH','DASHBOARD','GAME MODES','GAMEPLAY','SOCIAL','AI ASSISTANT','ANALYTICS','ACHIEVEMENTS','SETTINGS','MEDPLAY NEXUS'];
 let currentScene=0;
 const label=document.getElementById('scene-label');
 const progressBar=document.getElementById('progress-bar');
@@ -625,12 +625,12 @@ async function runDemo(){
   document.getElementById('tab-register').classList.add('active');document.getElementById('tab-login').classList.remove('active');
   document.getElementById('register-form').classList.remove('hidden');document.getElementById('login-form').classList.add('hidden');await delay(400);
   clickAt(440,290);await delay(400);await new Promise(r=>typeInto(document.getElementById('reg-user'),'ahmed_hassan',60,r));await delay(300);
-  clickAt(440,340);await delay(300);await new Promise(r=>typeInto(document.getElementById('reg-email'),'ahmed@abood.io',55,r));await delay(300);
+  clickAt(440,340);await delay(300);await new Promise(r=>typeInto(document.getElementById('reg-email'),'ahmed@medplay.io',55,r));await delay(300);
   clickAt(440,390);await delay(300);await new Promise(r=>typeInto(document.getElementById('reg-pass'),'••••••••',80,r));await delay(600);
   clickAt(360,178);await delay(700);
   document.getElementById('tab-login').classList.add('active');document.getElementById('tab-register').classList.remove('active');
   document.getElementById('login-form').classList.remove('hidden');document.getElementById('register-form').classList.add('hidden');await delay(400);
-  clickAt(440,290);await delay(400);await new Promise(r=>typeInto(document.getElementById('login-email'),'ahmed@abood.io',55,r));await delay(300);
+  clickAt(440,290);await delay(400);await new Promise(r=>typeInto(document.getElementById('login-email'),'ahmed@medplay.io',55,r));await delay(300);
   clickAt(440,340);await delay(300);await new Promise(r=>typeInto(document.getElementById('login-pass'),'••••••••',80,r));await delay(500);
   clickAt(440,400);await delay(300);
   document.getElementById('login-btn').style.opacity='.5';document.getElementById('auth-spinner').classList.remove('hidden');await delay(1800);

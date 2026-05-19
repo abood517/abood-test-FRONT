@@ -1,7 +1,7 @@
 const TRANSLATIONS = {
   en: {
     // Brand
-    'brand.suffix': ' TEST',
+    'brand.suffix': ' NEXUS',
 
     // Nav
     'nav.modes': 'Modes',
@@ -157,7 +157,7 @@ const TRANSLATIONS = {
     'social.add': '+ Add',
     'social.added': '✓ Added',
     'ai.title': 'AI ASSISTANT',
-    'ai.subtitle': 'Powered by ABOOD-AI',
+    'ai.subtitle': 'Powered by MedPlay-AI',
     'ai.placeholder': 'Ask any coding question…',
     'ai.suggestions': 'SUGGESTED QUESTIONS',
     'ai.greeting': "Hello! I'm your AI coding assistant. Ask me anything about HTML, CSS, JavaScript, or any challenge.",
@@ -203,7 +203,7 @@ const TRANSLATIONS = {
 
   ar: {
     // Brand
-    'brand.suffix': ' تست',
+    'brand.suffix': ' نيكسوس',
 
     // Nav
     'nav.modes': 'الأقسام',
@@ -359,7 +359,7 @@ const TRANSLATIONS = {
     'social.add': '+ إضافة',
     'social.added': '✓ تمت الإضافة',
     'ai.title': 'المساعد الذكي',
-    'ai.subtitle': 'يعمل بـ ABOOD-AI',
+    'ai.subtitle': 'يعمل بـ MedPlay-AI',
     'ai.placeholder': 'اسأل أي سؤال برمجي…',
     'ai.suggestions': 'أسئلة مقترحة',
     'ai.greeting': 'أهلاً! أنا مساعدك البرمجي الذكي. اسألني أي سؤال عن HTML أو CSS أو JavaScript أو أي تحدي.',
