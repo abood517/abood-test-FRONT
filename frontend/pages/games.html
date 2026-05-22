@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedPlay Nexus - Code Racer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    html[dir="rtl"] * { font-family: 'Cairo', sans-serif; }
+    html[dir="rtl"] .brand, html[dir="rtl"] .arcade-title { font-family: 'Orbitron', 'Cairo', sans-serif; }
+
+    :root {
+      --bg-black: #0a0a0f;
+      --bg-card: #14141d;
+      --bg-darker: #050508;
+      --accent-purple: #b14dff;
+      --accent-cyan: #ff4d8e;
+      --accent-green: #4dffaa;
+      --accent-amber: #ffaa4d;
+      --accent-blue: #64b5f6;
+      --accent-red: #ff5577;
+      --text-primary: #ffffff;
+      --text-secondary: #8b8ba0;
+      --text-muted: #5a5a6e;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    body {
+      background: var(--bg-black);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Nav */
+    .top-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 36px; border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.85); backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .brand { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 4px; cursor: pointer; }
+    .brand span { color: var(--accent-purple); }
+    .user-stats { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .stat-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 12px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 20px; font-size: 11px;
+    }
+    .stat-pill .label { color: var(--text-muted); font-size: 9px; letter-spacing: 1px; }
+    .stat-pill .value { color: var(--text-primary); font-weight: 600; }
+    .user-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 12px 4px 4px;
+      background: rgba(177,77,255,0.08);
+      border: 1px solid rgba(177,77,255,0.35);
+      border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+      text-decoration: none; color: var(--text-primary);
+    }
+    .user-chip .avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, #b14dff, #ff4d8e);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+    }
+    .lang-toggle, .logout-btn {
+      padding: 6px 12px; background: transparent;
+      border: 1px solid var(--border); color: var(--text-secondary);
+      border-radius: 20px; font-size: 11px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .lang-toggle:hover, .logout-btn:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+
+    .back-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-secondary); padding: 6px 14px;
+      border-radius: 20px; cursor: pointer; font-size: 11px;
+      display: inline-flex; align-items: center; gap: 6px;
+      text-decoration: none;
+    }
+    .back-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); }
+
+    /* Arcade header */
+    .arcade-wrap { max-width: 1100px; margin: 18px auto; padding: 0 24px; position: relative; z-index: 2; }
+    .arcade-header { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; }
+    .arcade-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px; font-weight: 900; letter-spacing: 5px;
+      background: linear-gradient(135deg, #b14dff, #ff4d8e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .arcade-subtitle { font-family: 'JetBrains Mono', monospace; color: var(--text-secondary); font-size: 11px; letter-spacing: 2px; margin-top: 6px; }
+
+    /* Track / section selector */
+    .track-row {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      padding: 5px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 12px;
+    }
+    .track-btn {
+      padding: 9px 14px;
+      background: transparent; border: none;
+      color: var(--text-secondary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      border-radius: 8px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .track-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); }
+    .track-btn.active.fe { background: rgba(192,128,255,0.18); color: #d690ff; }
+    .track-btn.active.be { background: rgba(177,77,255,0.18); color: var(--accent-purple); }
+    .track-btn.active.sec { background: rgba(77,255,170,0.18); color: var(--accent-green); }
+    .track-btn.active.ehr { background: rgba(100,181,246,0.18); color: var(--accent-blue); }
+    .track-btn.active.mix { background: rgba(255,170,77,0.18); color: var(--accent-amber); }
+
+    /* HUD */
+    .hud {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .hud-cell {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .hud-cell .k { font-size: 9px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+    .hud-cell .v { font-size: 20px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+    .hud-cell.score .v { color: var(--accent-green); }
+    .hud-cell.speed .v { color: var(--accent-cyan); }
+    .hud-cell.streak .v { color: var(--accent-amber); }
+    .hud-cell.lives .v { color: var(--accent-red); letter-spacing: 4px; }
+
+    /* Question overlay above the road */
+    .question-bar {
+      background: linear-gradient(135deg, rgba(177,77,255,0.12), rgba(255,77,142,0.08));
+      border: 1px solid rgba(177,77,255,0.35);
+      border-radius: 12px;
+      padding: 14px 22px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+      margin-bottom: 10px;
+    }
+    .question-bar .q-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 2px; color: var(--accent-cyan);
+      text-transform: uppercase; margin-bottom: 3px;
+    }
+    .question-bar .q-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 17px; font-weight: 700; letter-spacing: 1px;
+      color: var(--text-primary);
+    }
+    .question-bar .q-hint { font-size: 11px; color: var(--text-muted); }
+
+    /* ROAD — the actual game stage */
+    .stage {
+      position: relative;
+      width: 100%;
+      max-width: 540px;
+      height: 600px;
+      margin: 0 auto;
+      background: #0c0c14;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 0 60px rgba(177,77,255,0.04);
+    }
+
+    .road {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%),
+        repeating-linear-gradient(180deg, transparent 0 60px, rgba(255,255,255,0.0) 60px 70px);
+      background-color: #1a1a26;
+    }
+    /* Lane dividers — animated dashed lines */
+    .lane-line {
+      position: absolute;
+      top: -120px;
+      width: 3px;
+      height: 200%;
+      background-image: repeating-linear-gradient(180deg,
+        rgba(255,255,255,0.45) 0 28px,
+        transparent 28px 56px);
+      animation: scroll 0.6s linear infinite;
+    }
+    .lane-line.l1 { left: 33.333%; }
+    .lane-line.l2 { left: 66.666%; }
+    @keyframes scroll { from { transform: translateY(0); } to { transform: translateY(56px); } }
+
+    /* Roadside glow */
+    .stage::before, .stage::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 6px;
+      background: linear-gradient(180deg, rgba(177,77,255,0.4), rgba(255,77,142,0.4));
+      filter: blur(3px); z-index: 2;
+    }
+    .stage::before { left: 0; }
+    .stage::after { right: 0; }
+
+    /* Cars / blocks */
+    .player {
+      position: absolute;
+      bottom: 28px;
+      width: 56px; height: 88px;
+      transition: left 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 5;
+      filter: drop-shadow(0 0 12px rgba(177,77,255,0.5));
+    }
+    .player.crash { animation: crash 0.5s ease; }
+    @keyframes crash {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      25% { transform: translateX(-8px) rotate(-8deg); }
+      50% { transform: translateX(8px) rotate(8deg); }
+      75% { transform: translateX(-4px) rotate(-4deg); }
+    }
+
+    .answer-block {
+      position: absolute;
+      top: -120px;
+      width: 28%;
+      height: 96px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; font-weight: 700;
+      padding: 8px;
+      text-align: center;
+      color: #fff;
+      border: 2px solid;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      transition: opacity 0.2s;
+      z-index: 3;
+    }
+    .answer-block.lane-0 { left: 2.5%; }
+    .answer-block.lane-1 { left: 36%; }
+    .answer-block.lane-2 { left: 69.5%; }
+
+    /* Random color schemes for blocks */
+    .answer-block.c1 { background: rgba(192,128,255,0.18); border-color: rgba(192,128,255,0.7); color: #e0c8ff; }
+    .answer-block.c2 { background: rgba(77,255,170,0.14); border-color: rgba(77,255,170,0.7); color: #b8ffe2; }
+    .answer-block.c3 { background: rgba(100,181,246,0.14); border-color: rgba(100,181,246,0.7); color: #c5e2ff; }
+    .answer-block.c4 { background: rgba(255,170,77,0.14); border-color: rgba(255,170,77,0.7); color: #ffe2b8; }
+    .answer-block.passed { opacity: 0; }
+    .answer-block.hit-bad { animation: shake 0.4s; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); background: rgba(255,87,119,0.4); }
+      75% { transform: translateX(6px); background: rgba(255,87,119,0.4); }
+    }
+
+    /* Overlay screens (start / game over) */
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(5,5,8,0.92);
+      backdrop-filter: blur(6px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 10;
+      padding: 24px;
+      text-align: center;
+    }
+    .overlay.hidden { display: none; }
+    .overlay h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 30px; letter-spacing: 4px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #b14dff, #ff4d8e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .overlay p { color: var(--text-secondary); margin-bottom: 22px; font-size: 13px; line-height: 1.6; max-width: 380px; }
+    .overlay .stat-line {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-green);
+      font-size: 14px; margin-bottom: 6px;
+    }
+    .overlay button {
+      margin-top: 16px;
+      padding: 13px 34px;
+      background: var(--accent-purple);
+      color: white; border: none;
+      border-radius: 10px; cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px; font-weight: 700;
+      letter-spacing: 3px;
+    }
+    .overlay button:hover { background: #a13ee8; box-shadow: 0 0 26px rgba(177,77,255,0.5); }
+    .overlay .keys-hint {
+      margin-top: 18px;
+      display: flex; gap: 14px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .keycap {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: var(--text-primary);
+      box-shadow: 0 3px 0 var(--border);
+    }
+    .keys-hint .label { color: var(--text-muted); font-size: 11px; align-self: center; }
+
+    /* Touch controls (mobile) */
+    .touch-controls {
+      display: none;
+      margin: 14px auto 0;
+      max-width: 540px;
+      gap: 10px;
+    }
+    .touch-btn {
+      flex: 1;
+      padding: 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 28px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .touch-btn:active { background: rgba(177,77,255,0.2); border-color: var(--accent-purple); }
+    @media (max-width: 768px) {
+      .touch-controls { display: flex; }
+      .stage { height: 520px; }
+      .arcade-title { font-size: 28px; letter-spacing: 3px; }
+    }
+
+    /* Confetti */
+    .confetti { position: fixed; pointer-events: none; inset: 0; overflow: hidden; z-index: 998; }
+    .confetti-piece { position: absolute; width: 8px; height: 14px; animation: fall 2.2s ease-out forwards; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+  </style>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="brand" onclick="window.location.href='hub.html'">MEDPLAY<span> NEXUS</span></div>
+    <div class="user-stats">
+      <a class="back-btn" href="hub.html">← BACK</a>
+      <div class="stat-pill"><span class="label">XP</span><span class="value" id="userXp">0</span></div>
+      <div class="stat-pill"><span class="label">COINS</span><span class="value" id="userCoins">0</span></div>
+      <div class="stat-pill"><span class="label">HIGH</span><span class="value" id="highScore">0</span></div>
+      <a class="user-chip" href="hub.html" id="userChip" title="Player">
+        <span class="avatar" id="userAvatar">A</span>
+        <span class="uname" id="userName">Player</span>
+      </a>
+      <button class="lang-toggle" id="langToggle"><span class="lang-toggle-label">AR</span></button>
+      <button class="logout-btn" onclick="Auth.logout()" data-i18n="nav.logout">Log out</button>
+    </div>
+  </nav>
+
+  <div class="arcade-wrap">
+    <div class="arcade-header">
+      <div>
+        <div class="arcade-title">CODE RACER</div>
+        <div class="arcade-subtitle">▶ STEER · ANSWER · SURVIVE</div>
+      </div>
+      <div class="track-row">
+        <button class="track-btn active fe" data-track="frontend">▰ FRONTEND</button>
+        <button class="track-btn be" data-track="backend">⚙ BACKEND</button>
+        <button class="track-btn sec" data-track="cyber">⚷ CYBERSEC</button>
+        <button class="track-btn ehr" data-track="ehr">✚ EHR</button>
+        <button class="track-btn mix" data-track="mixed">★ MIXED</button>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div class="hud-cell score"><div class="k">SCORE</div><div class="v" id="hudScore">0</div></div>
+      <div class="hud-cell speed"><div class="k">SPEED</div><div class="v" id="hudSpeed">1.0×</div></div>
+      <div class="hud-cell streak"><div class="k">STREAK</div><div class="v" id="hudStreak">0</div></div>
+      <div class="hud-cell lives"><div class="k">LIVES</div><div class="v" id="hudLives">♥♥♥</div></div>
+    </div>
+
+    <div class="question-bar">
+      <div>
+        <div class="q-label">▶ DRIVE INTO THE CORRECT LANE</div>
+        <div class="q-text" id="qText">Press START to begin</div>
+      </div>
+      <div class="q-hint" id="qHint">← → or A/D to steer</div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="road">
+        <div class="lane-line l1"></div>
+        <div class="lane-line l2"></div>
+      </div>
+      <!-- Player car as SVG so we can style it -->
+      <svg class="player" id="player" viewBox="0 0 56 88" xmlns="http://www.w3.org/2000/svg">
+        <!-- Body -->
+        <rect x="6" y="14" width="44" height="64" rx="10" fill="url(#carBody)" stroke="#fff" stroke-width="1.5"/>
+        <!-- Windshield -->
+        <path d="M12 28 L44 28 L40 44 L16 44 Z" fill="#0a0a14" opacity="0.85"/>
+        <!-- Rear window -->
+        <path d="M14 60 L42 60 L40 72 L16 72 Z" fill="#0a0a14" opacity="0.85"/>
+        <!-- Headlights -->
+        <circle cx="14" cy="20" r="3" fill="#ffd966"/>
+        <circle cx="42" cy="20" r="3" fill="#ffd966"/>
+        <!-- Taillights -->
+        <rect x="10" y="72" width="6" height="4" rx="1" fill="#ff4d6a"/>
+        <rect x="40" y="72" width="6" height="4" rx="1" fill="#ff4d6a"/>
+        <!-- Wheels -->
+        <rect x="2" y="22" width="6" height="14" rx="2" fill="#222"/>
+        <rect x="48" y="22" width="6" height="14" rx="2" fill="#222"/>
+        <rect x="2" y="56" width="6" height="14" rx="2" fill="#222"/>
+        <rect x="48" y="56" width="6" height="14" rx="2" fill="#222"/>
+        <defs>
+          <linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#d36bff"/>
+            <stop offset="1" stop-color="#7b1cf0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <!-- Start / game-over overlay -->
+      <div class="overlay" id="overlay">
+        <h2 id="overlayTitle">CODE RACER</h2>
+        <p id="overlayText">Drive into the lane that holds the correct answer. Crash 3 times and the run ends. Each correct pass scores points and speeds you up.</p>
+        <div class="keys-hint">
+          <span class="label">CONTROLS:</span>
+          <span class="keycap">←</span>
+          <span class="keycap">→</span>
+          <span class="label">or</span>
+          <span class="keycap">A</span>
+          <span class="keycap">D</span>
+        </div>
+        <button id="startBtn">START</button>
+      </div>
+    </div>
+
+    <div class="touch-controls">
+      <div class="touch-btn" id="touchLeft">◀</div>
+      <div class="touch-btn" id="touchRight">▶</div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/translations.js"></script>
+  <script src="../js/app.js"></script>
+  <script>
+    Auth.requireAuth();
+    I18n.initToggle('#langToggle');
+
+    // ===== Question banks per track =====
+    // Each entry: q (question text), a (3-option array), c (correct index 0..2)
+    const BANKS = {
+      frontend: [
+        { q: 'Which tag is a paragraph?', a: ['<p>', '<para>', '<text>'], c: 0 },
+        { q: 'Tag for the largest heading?', a: ['<h6>', '<head>', '<h1>'], c: 2 },
+        { q: 'Make text bold?', a: ['<bold>', '<strong>', '<big>'], c: 1 },
+        { q: 'CSS property for text color?', a: ['font', 'color', 'text-color'], c: 1 },
+        { q: 'Make element flex container?', a: ['display:flex', 'flex:on', 'layout:flex'], c: 0 },
+        { q: 'CSS unit relative to root font?', a: ['em', 'rem', 'vh'], c: 1 },
+        { q: 'Center items in flexbox?', a: ['align-text', 'justify-content', 'center:auto'], c: 1 },
+        { q: 'Add image alt text attribute?', a: ['alt', 'title', 'desc'], c: 0 },
+        { q: 'JS find element by id?', a: ['getElement(id)', 'getElementById', 'findId'], c: 1 },
+        { q: 'JS listen for click?', a: ['onClick=fn', 'addEventListener', 'listen("click")'], c: 1 },
+        { q: 'CSS for rounded corners?', a: ['border-radius', 'corner-radius', 'rounded'], c: 0 },
+        { q: 'Tag for an ordered list?', a: ['<ul>', '<list>', '<ol>'], c: 2 },
+        { q: 'CSS to hide element?', a: ['display:none', 'visible:no', 'hide:true'], c: 0 },
+        { q: 'Link to a page in HTML?', a: ['<a href>', '<link to>', '<go>'], c: 0 },
+        { q: 'JS arrow function syntax?', a: ['fn => x', '() => {}', '->{}'], c: 1 },
+      ],
+      backend: [
+        { q: 'SQL: filter rows with...', a: ['WHERE', 'IF', 'FILTER'], c: 0 },
+        { q: 'SQL: get all columns?', a: ['ALL', '*', 'EVERY'], c: 1 },
+        { q: 'SQL: sort the results?', a: ['SORT BY', 'ORDER BY', 'ARRANGE'], c: 1 },
+        { q: 'Node: import a module?', a: ['import', 'require', 'use'], c: 1 },
+        { q: 'JSON: object key wrapper?', a: ['" "', "' '", '< >'], c: 0 },
+        { q: 'HTTP success status?', a: ['200', '404', '500'], c: 0 },
+        { q: 'HTTP not found?', a: ['200', '404', '500'], c: 1 },
+        { q: 'HTTP server error?', a: ['200', '404', '500'], c: 2 },
+        { q: 'Express: read POST body?', a: ['req.params', 'req.body', 'req.url'], c: 1 },
+        { q: 'Promise: wait for it?', a: ['await', 'pause', 'hold'], c: 0 },
+        { q: 'Python: define function?', a: ['function', 'def', 'fn'], c: 1 },
+        { q: 'Excel: sum a range?', a: ['=SUM()', '=ADD()', '=TOTAL()'], c: 0 },
+        { q: 'Excel: count items?', a: ['=NUM()', '=COUNT()', '=TALLY()'], c: 1 },
+        { q: 'SQL: join two tables?', a: ['MERGE', 'JOIN', 'LINK'], c: 1 },
+        { q: 'Git: commit changes?', a: ['git save', 'git commit', 'git push'], c: 1 },
+      ],
+      cyber: [
+        { q: 'Hash with 32 hex chars?', a: ['SHA-256', 'MD5', 'SHA-1'], c: 1 },
+        { q: 'Hash with 40 hex chars?', a: ['MD5', 'SHA-1', 'SHA-256'], c: 1 },
+        { q: 'Hash with 64 hex chars?', a: ['MD5', 'SHA-1', 'SHA-256'], c: 2 },
+        { q: 'Base64 padding char?', a: ['=', '#', '%'], c: 0 },
+        { q: 'Default HTTPS port?', a: ['80', '443', '8080'], c: 1 },
+        { q: 'Default HTTP port?', a: ['80', '443', '21'], c: 0 },
+        { q: 'Default SSH port?', a: ['22', '23', '80'], c: 0 },
+        { q: 'XSS targets...?', a: ['Database', 'Browser', 'Server CPU'], c: 1 },
+        { q: 'SQL injection targets?', a: ['Browser', 'Database', 'Network'], c: 1 },
+        { q: 'Symmetric cipher example?', a: ['RSA', 'AES', 'ECDSA'], c: 1 },
+        { q: 'Asymmetric cipher?', a: ['AES', 'DES', 'RSA'], c: 2 },
+        { q: 'ROT13 shifts by?', a: ['7', '13', '26'], c: 1 },
+        { q: 'TLS uses public-key for?', a: ['Compression', 'Handshake', 'Storage'], c: 1 },
+        { q: 'Strong password practice?', a: ['Common words', 'Long & random', 'Birthday'], c: 1 },
+        { q: 'Hashing is...?', a: ['Reversible', 'One-way', 'Symmetric'], c: 1 },
+      ],
+      ehr: [
+        { q: 'Normal adult heart rate?', a: ['30-50 bpm', '60-100 bpm', '120-180 bpm'], c: 1 },
+        { q: 'Normal body temperature?', a: ['33°C', '37°C', '41°C'], c: 1 },
+        { q: 'Normal SpO₂?', a: ['70-80%', '85-90%', '95-100%'], c: 2 },
+        { q: 'Normal systolic BP?', a: ['<60', '90-120', '>180'], c: 1 },
+        { q: 'BP 180/110 indicates?', a: ['Low BP', 'Crisis', 'Normal'], c: 1 },
+        { q: 'BG 38 mg/dL indicates?', a: ['Diabetes', 'Hypoglycemia', 'Normal'], c: 1 },
+        { q: 'HR 35 bpm =?', a: ['Tachycardia', 'Bradycardia', 'Normal'], c: 1 },
+        { q: 'HR 145 bpm =?', a: ['Tachycardia', 'Bradycardia', 'Normal'], c: 0 },
+        { q: 'ICD-10 codes describe?', a: ['Procedures', 'Diagnoses', 'Drugs'], c: 1 },
+        { q: 'CPT codes describe?', a: ['Diagnoses', 'Procedures', 'Drugs'], c: 1 },
+        { q: 'LOINC codes describe?', a: ['Procedures', 'Lab tests', 'Drugs'], c: 1 },
+        { q: 'BMI: weight ÷ height...?', a: ['×1', 'squared', 'cubed'], c: 1 },
+        { q: 'GCS scale max score?', a: ['10', '15', '20'], c: 1 },
+        { q: 'NPO means?', a: ['Pain only', 'Nothing by mouth', 'No pills'], c: 1 },
+        { q: 'PRN means?', a: ['Twice daily', 'As needed', 'After meals'], c: 1 },
+      ],
+    };
+    BANKS.mixed = [].concat(BANKS.frontend, BANKS.backend, BANKS.cyber, BANKS.ehr);
+
+    // ===== Local persistent scores =====
+    const Score = {
+      get xp() { return parseInt(localStorage.getItem('mp_racer_xp') || '0', 10); },
+      set xp(v) { localStorage.setItem('mp_racer_xp', v); document.getElementById('userXp').textContent = v; },
+      get coins() { return parseInt(localStorage.getItem('mp_racer_coins') || '0', 10); },
+      set coins(v) { localStorage.setItem('mp_racer_coins', v); document.getElementById('userCoins').textContent = v; },
+      get high() { return parseInt(localStorage.getItem('mp_racer_high') || '0', 10); },
+      set high(v) { localStorage.setItem('mp_racer_high', v); document.getElementById('highScore').textContent = v; },
+      reward(xp) {
+        this.xp = this.xp + xp;
+        this.coins = this.coins + Math.floor(xp / 3);
+      }
+    };
+    document.getElementById('userXp').textContent = Score.xp;
+    document.getElementById('userCoins').textContent = Score.coins;
+    document.getElementById('highScore').textContent = Score.high;
+
+    // Try to fetch live user info to display name in chip
+    (async () => {
+      try {
+        const user = await API.getMe();
+        Auth.setUser(user);
+        const name = user.username || 'Player';
+        document.getElementById('userName').textContent = name;
+        document.getElementById('userAvatar').textContent = (name.charAt(0) || 'A').toUpperCase();
+        document.getElementById('userChip').setAttribute('title', name);
+      } catch (e) {}
+    })();
+
+    // ===== Game state =====
+    const State = {
+      running: false,
+      lane: 1,                  // 0, 1, 2
+      lives: 3,
+      score: 0,
+      streak: 0,
+      speed: 1,                 // multiplier
+      track: 'frontend',
+      currentQ: null,
+      blocks: [],               // active answer blocks: { el, lane, isCorrect, top, dead }
+      lastSpawn: 0,
+      lastTick: 0,
+      laneCenters: [],          // computed on resize
+      invincibleUntil: 0,
+      spawning: false,          // gate for the breathing-room delay between rows
+    };
+
+    const stage = document.getElementById('stage');
+    const player = document.getElementById('player');
+    const overlay = document.getElementById('overlay');
+
+    function computeLaneCenters() {
+      const w = stage.clientWidth;
+      State.laneCenters = [w * 1/6, w * 3/6, w * 5/6];
+      placePlayer();
+    }
+    window.addEventListener('resize', computeLaneCenters);
+    computeLaneCenters();
+
+    function placePlayer() {
+      const cx = State.laneCenters[State.lane];
+      player.style.left = (cx - 28) + 'px';
+    }
+
+    function setOverlay(title, text, btnLabel, show) {
+      document.getElementById('overlayTitle').textContent = title;
+      document.getElementById('overlayText').textContent = text;
+      document.getElementById('startBtn').textContent = btnLabel;
+      overlay.classList.toggle('hidden', !show);
+    }
+
+    function updateHUD() {
+      document.getElementById('hudScore').textContent = State.score;
+      document.getElementById('hudSpeed').textContent = State.speed.toFixed(1) + '×';
+      document.getElementById('hudStreak').textContent = State.streak;
+      document.getElementById('hudLives').textContent = '♥'.repeat(State.lives) + '♡'.repeat(3 - State.lives);
+    }
+
+    function pickQuestion() {
+      const bank = BANKS[State.track];
+      const q = bank[Math.floor(Math.random() * bank.length)];
+      State.currentQ = q;
+      document.getElementById('qText').textContent = q.q;
+      const labels = ['LEFT', 'CENTER', 'RIGHT'];
+      document.getElementById('qHint').textContent = '← → to steer · take your time, read carefully';
+    }
+
+    // Spawn a row of 3 answer blocks, one per lane
+    function spawnRow() {
+      const q = State.currentQ;
+      if (!q) return;
+      const shuffleColors = [1,2,3,4].sort(() => Math.random() - 0.5);
+      for (let lane = 0; lane < 3; lane++) {
+        const el = document.createElement('div');
+        el.className = `answer-block lane-${lane} c${shuffleColors[lane]}`;
+        el.textContent = q.a[lane];
+        stage.appendChild(el);
+        State.blocks.push({
+          el, lane,
+          isCorrect: lane === q.c,
+          top: -120,
+          counted: false,
+        });
+      }
+    }
+
+    // ===== Main game loop =====
+    function tick(ts) {
+      if (!State.running) return;
+      if (!State.lastTick) State.lastTick = ts;
+      const dt = (ts - State.lastTick) / 16.67; // ~ frames at 60fps
+      State.lastTick = ts;
+
+      // Move blocks
+      const stageH = stage.clientHeight;
+      const playerTopY = stageH - 28 - 88; // top of player's car
+      const playerBottomY = stageH - 28;
+      // Slower base so the player has time to read the question and steer.
+      // ~2 px/frame at 60fps = ~120 px/sec → ~5 seconds from spawn to player line.
+      const speedPx = 2 * State.speed * dt;
+
+      for (const b of State.blocks) {
+        if (b.dead) continue;
+        b.top += speedPx;
+        b.el.style.top = b.top + 'px';
+
+        // Did this block reach the player's row?
+        const blockBottom = b.top + 96;
+        if (!b.counted && blockBottom >= playerTopY && b.top <= playerBottomY) {
+          if (b.lane === State.lane) {
+            // We are in this lane — score (correct) or crash (wrong)
+            b.counted = true;
+            if (b.isCorrect) {
+              hitCorrect(b);
+            } else {
+              hitWrong(b);
+            }
+            // Mark the other blocks of this row as counted too — they passed by
+            for (const other of State.blocks) {
+              if (!other.dead && !other.counted && Math.abs(other.top - b.top) < 30 && other !== b) {
+                other.counted = true;
+              }
+            }
+          }
+        }
+
+        // If the whole row passed and we are not in any lane that matched the row,
+        // mark them as missed (no penalty, just clear).
+        if (b.top > stageH && !b.dead) {
+          b.dead = true;
+          b.el.remove();
+        }
+      }
+
+      // Remove dead blocks
+      State.blocks = State.blocks.filter(b => !b.dead);
+
+      // Spawn next row only after the previous row has fully passed the player.
+      // This guarantees a readable gap between questions.
+      const anyAlive = State.blocks.length > 0;
+      if (!anyAlive && !State.spawning) {
+        State.spawning = true;
+        setTimeout(() => {
+          pickQuestion();
+          spawnRow();
+          State.spawning = false;
+        }, 700); // 0.7s breathing room before next question
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    function hitCorrect(b) {
+      State.streak++;
+      const base = 10;
+      const bonus = State.streak * 2;
+      const gain = base + bonus;
+      State.score += gain;
+      // Slight speed bump per correct answer, tightly capped so the game stays playable.
+      State.speed = Math.min(1.8, State.speed + 0.02);
+      b.el.classList.add('passed');
+      // Reward XP locally
+      Score.reward(gain);
+      // Floating "+gain" indicator
+      flash(b.el, '+' + gain, '#4dffaa');
+      updateHUD();
+    }
+
+    function hitWrong(b) {
+      // Respect a brief invincibility window after a crash
+      if (performance.now() < State.invincibleUntil) return;
+
+      State.streak = 0;
+      State.lives--;
+      State.speed = Math.max(1, State.speed - 0.25);
+      player.classList.add('crash');
+      b.el.classList.add('hit-bad');
+      State.invincibleUntil = performance.now() + 900;
+      flash(b.el, '✗', '#ff5577');
+      updateHUD();
+
+      setTimeout(() => player.classList.remove('crash'), 500);
+
+      if (State.lives <= 0) gameOver();
+    }
+
+    function flash(near, text, color) {
+      const f = document.createElement('div');
+      f.style.cssText = `
+        position:absolute; color:${color}; font-weight:800;
+        font-family:'Orbitron',sans-serif; font-size:18px;
+        text-shadow:0 0 10px ${color};
+        pointer-events:none; z-index:9;
+        transition: all 0.7s ease-out;
+      `;
+      const rect = near.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      f.style.left = (rect.left - stageRect.left + rect.width / 2 - 12) + 'px';
+      f.style.top = (rect.top - stageRect.top - 8) + 'px';
+      f.textContent = text;
+      stage.appendChild(f);
+      requestAnimationFrame(() => {
+        f.style.transform = 'translateY(-40px)';
+        f.style.opacity = '0';
+      });
+      setTimeout(() => f.remove(), 700);
+    }
+
+    function startGame() {
+      // Reset
+      State.running = true;
+      State.lives = 3;
+      State.score = 0;
+      State.streak = 0;
+      State.speed = 1;
+      State.lane = 1;
+      State.blocks.forEach(b => b.el.remove());
+      State.blocks = [];
+      State.lastTick = 0;
+      State.spawning = false;
+      placePlayer();
+      updateHUD();
+      overlay.classList.add('hidden');
+
+      pickQuestion();
+      spawnRow();
+      requestAnimationFrame(tick);
+    }
+
+    function gameOver() {
+      State.running = false;
+      State.blocks.forEach(b => b.el.remove());
+      State.blocks = [];
+
+      if (State.score > Score.high) {
+        Score.high = State.score;
+        celebrate();
+      }
+      setOverlay(
+        'CRASH!',
+        `Final score: ${State.score} · Streak best: ${State.streak} · High: ${Score.high}`,
+        'PLAY AGAIN',
+        true
+      );
+    }
+
+    function celebrate() {
+      const colors = ['#b14dff', '#ff4d8e', '#4dffaa', '#ffaa4d', '#64b5f6'];
+      const wrap = document.createElement('div');
+      wrap.className = 'confetti';
+      for (let i = 0; i < 60; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = (Math.random() * 100) + 'vw';
+        p.style.top = (-10 - Math.random() * 30) + 'vh';
+        p.style.background = colors[i % colors.length];
+        p.style.transform = `rotate(${Math.random() * 360}deg)`;
+        p.style.animationDelay = (Math.random() * 0.4) + 's';
+        wrap.appendChild(p);
+      }
+      document.body.appendChild(wrap);
+      setTimeout(() => wrap.remove(), 2600);
+    }
+
+    // ===== Input handlers =====
+    function steer(delta) {
+      if (!State.running) return;
+      State.lane = Math.max(0, Math.min(2, State.lane + delta));
+      placePlayer();
+    }
+    window.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') steer(-1);
+      else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') steer(1);
+    });
+    document.getElementById('touchLeft').onclick = () => steer(-1);
+    document.getElementById('touchRight').onclick = () => steer(1);
+    document.getElementById('startBtn').onclick = startGame;
+
+    // Track switcher
+    document.querySelectorAll('.track-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.track-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        State.track = btn.getAttribute('data-track');
+        if (State.running) {
+          // Restart with new track on switch
+          startGame();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -127,6 +127,10 @@ const TRANSLATIONS = {
 
     // Hub
     'hub.gameModes': 'GAME MODES',
+    'hub.arcadeEyebrow': '▶ STEER · ANSWER · SURVIVE',
+    'hub.arcadeTitle': 'CODE RACER',
+    'hub.arcadeSub': 'Race down the highway — pick the right lane, learn the answer.',
+    'hub.arcadeCta': 'PLAY NOW',
     'hub.selectCategory': 'SELECT CATEGORY',
     'hub.xp': 'XP',
     'hub.coins': 'COINS',
@@ -329,6 +333,10 @@ const TRANSLATIONS = {
 
     // Hub
     'hub.gameModes': 'أوضاع اللعب',
+    'hub.arcadeEyebrow': '▶ اتجه · جاوب · انجو',
+    'hub.arcadeTitle': 'كود ريسر',
+    'hub.arcadeSub': 'سباق على الطريق — اختار الحارة الصح، اتعلم الإجابة.',
+    'hub.arcadeCta': 'ابدأ اللعبة',
     'hub.selectCategory': 'اختر فئة',
     'hub.xp': 'خبرة',
     'hub.coins': 'عملات',
